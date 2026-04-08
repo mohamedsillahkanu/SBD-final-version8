@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0">
+<title>SBD 2026 — Supervision Checklist</title>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--navy:#004080;--navy2:#002952;--gold:#ffc107;--green:#1a7a3c;--red:#c0392b;--gray:#f0f4f8;--border:#dde3ee}
+body{font-family:'Oswald',sans-serif;background:var(--gray);min-height:100vh;color:#1a2533}
+.hdr{background:linear-gradient(135deg,var(--navy2),var(--navy));padding:14px 18px;display:flex;align-items:center;gap:12px;border-bottom:3px solid var(--gold)}
+.hdr-logo{width:40px;height:40px;background:#fff;border-radius:8px;border:2px solid var(--gold);display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0}
+.hdr-txt h1{font-size:1rem;font-weight:700;color:#fff;letter-spacing:.5px}
+.hdr-txt p{font-size:.62rem;color:rgba(255,255,255,.7);text-transform:uppercase;letter-spacing:.5px}
+.wrap{max-width:700px;margin:0 auto;padding:18px 14px}
+.card{background:#fff;border-radius:14px;padding:20px 18px;box-shadow:0 4px 16px rgba(0,64,128,.09);margin-bottom:16px}
+.card-title{font-size:.8rem;font-weight:700;color:var(--navy);text-transform:uppercase;letter-spacing:.6px;padding-bottom:10px;border-bottom:2px solid var(--gold);margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.form-group{margin-bottom:13px}
+.label{font-size:.7rem;font-weight:600;color:var(--navy);text-transform:uppercase;letter-spacing:.6px;display:block;margin-bottom:5px}
+.label .req{color:var(--red)}
+.input,.select{width:100%;border:2px solid var(--border);border-radius:9px;padding:10px 13px;font-family:'Oswald',sans-serif;font-size:.92rem;outline:none;transition:border .2s;background:#fff}
+.input:focus,.select:focus{border-color:var(--navy)}
+.input:disabled,.select:disabled{background:#f5f5f5;color:#999;cursor:not-allowed}
+/* Q&A */
+.q-item{border:1px solid var(--border);border-radius:10px;padding:13px 14px;margin-bottom:10px;background:#fafbfd}
+.q-text{font-size:.88rem;color:#1a2533;line-height:1.5;margin-bottom:10px;font-weight:500}
+.q-opts{display:flex;gap:8px;flex-wrap:wrap}
+.q-opt{display:flex;align-items:center;gap:6px;border:2px solid var(--border);border-radius:7px;padding:7px 13px;cursor:pointer;font-size:.82rem;font-weight:600;transition:all .2s;background:#fff;white-space:nowrap}
+.q-opt:hover{border-color:var(--navy)}
+.q-opt.active-y{border-color:var(--green);background:#e8f5ee;color:var(--green)}
+.q-opt.active-n{border-color:var(--red);background:#fff0ee;color:var(--red)}
+.q-opt.active-sel{border-color:var(--navy);background:#e8f1fb;color:var(--navy)}
+.q-note{margin-top:8px}
+.q-note .input{font-size:.82rem;padding:8px 11px}
+.section-hdr{background:linear-gradient(135deg,var(--navy2),var(--navy));color:#fff;border-radius:10px 10px 0 0;padding:10px 16px;font-size:.85rem;font-weight:700;letter-spacing:.5px;display:flex;align-items:center;gap:8px;margin-bottom:0}
+.section-body{border:2px solid var(--navy);border-top:none;border-radius:0 0 10px 10px;padding:14px;margin-bottom:16px;background:#fff}
+/* Number picker */
+.num-pick{display:flex;align-items:center;gap:8px}
+.num-btn{width:32px;height:32px;border-radius:50%;border:2px solid var(--navy);background:#fff;color:var(--navy);font-size:1.1rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s}
+.num-btn:hover{background:var(--navy);color:#fff}
+.num-val{font-size:1.2rem;font-weight:700;color:var(--navy);min-width:30px;text-align:center}
+/* Multi select */
+.multi-opts{display:flex;gap:6px;flex-wrap:wrap}
+.m-opt{border:2px solid var(--border);border-radius:7px;padding:6px 12px;cursor:pointer;font-size:.8rem;font-weight:600;transition:all .2s}
+.m-opt.sel{border-color:var(--navy);background:#e8f1fb;color:var(--navy)}
+/* Submit btn */
+.submit-btn{width:100%;padding:14px;background:linear-gradient(135deg,var(--green),#28a745);color:#fff;border:none;border-radius:11px;font-family:'Oswald',sans-serif;font-size:1.1rem;font-weight:700;letter-spacing:.6px;cursor:pointer;transition:all .2s;margin-top:6px}
+.submit-btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(26,122,60,.3)}
+.submit-btn:disabled{background:#bbb;cursor:not-allowed;transform:none}
+.progress-bar{height:5px;background:#e0e7ee;border-radius:3px;margin-bottom:4px}
+.progress-fill{height:5px;background:linear-gradient(90deg,var(--navy),#0056b3);border-radius:3px;transition:width .3s}
+.prog-txt{font-size:.68rem;color:#607080;text-align:right;margin-bottom:14px}
+.footer{text-align:center;padding:12px;font-size:10px;color:rgba(255,255,255,.8);background:linear-gradient(135deg,var(--navy2),var(--navy));font-family:'Oswald',sans-serif;letter-spacing:.3px}
+.footer strong{color:var(--gold)}
+/* notification */
+.notif{position:fixed;top:70px;left:50%;transform:translateX(-50%);background:#1a7a3c;color:#fff;padding:10px 22px;border-radius:10px;font-size:.88rem;font-weight:600;z-index:9999;display:none;box-shadow:0 4px 20px rgba(0,0,0,.3)}
+.notif.err{background:var(--red)}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div class="hdr-logo">📋</div>
+  <div class="hdr-txt">
+    <h1>DISTRIBUTION POINT SUPERVISION CHECKLIST</h1>
+    <p>ICF-SL · SBD 2026 · Sierra Leone</p>
+  </div>
+</div>
+
+<div class="notif" id="notif"></div>
+
+<div class="wrap">
+  <div class="progress-bar"><div class="progress-fill" id="progFill" style="width:0%"></div></div>
+  <div class="prog-txt" id="progTxt">0% complete</div>
+
+  <!-- SECTION 0: DEMOGRAPHICS -->
+  <div class="section-hdr">📍 IDENTIFICATION</div>
+  <div class="section-body">
+    <div class="form-group">
+      <label class="label">DISTRICT <span class="req">*</span></label>
+      <select class="select" id="district" onchange="onDistrictChange()"><option value="">Select District...</option></select>
+    </div>
+    <div class="form-group">
+      <label class="label">CHIEFDOM <span class="req">*</span></label>
+      <select class="select" id="chiefdom" disabled onchange="onChiefdomChange()"><option value="">Select Chiefdom...</option></select>
+    </div>
+    <div class="form-group">
+      <label class="label">NEAREST HEALTH FACILITY <span class="req">*</span></label>
+      <select class="select" id="facility" disabled onchange="onFacilityChange()"><option value="">Select Facility...</option></select>
+    </div>
+    <div class="form-group">
+      <label class="label">COMMUNITY <span class="req">*</span></label>
+      <select class="select" id="community" disabled onchange="onCommunityChange()"><option value="">Select Community...</option></select>
+    </div>
+    <div class="form-group">
+      <label class="label">SCHOOL NAME <span class="req">*</span></label>
+      <select class="select" id="school_name" disabled><option value="">Select School...</option></select>
+    </div>
+    <div class="form-group">
+      <label class="label">SETTING</label>
+      <div class="q-opts">
+        <div class="q-opt" id="opt-urban" onclick="setUrbanRural('Urban')">🏙 Urban</div>
+        <div class="q-opt" id="opt-rural" onclick="setUrbanRural('Rural')">🌿 Rural</div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="label">MONITOR'S NAME <span class="req">*</span></label>
+      <input class="input" id="monitor_name" placeholder="Full name of supervisor/monitor">
+    </div>
+    <div class="form-group">
+      <label class="label">DESIGNATION & ORGANISATION</label>
+      <input class="input" id="monitor_org" placeholder="e.g. NMCP Supervisor, ICF-SL">
+    </div>
+    <div class="form-group">
+      <label class="label">DATE OF VISIT <span class="req">*</span></label>
+      <input class="input" type="date" id="visit_date">
+    </div>
+  </div>
+
+  <!-- SECTION 1: OVERALL ORGANIZATION -->
+  <div class="section-hdr">👥 1. OVERALL ORGANIZATION OF TEAM</div>
+  <div class="section-body" id="sec1"></div>
+
+  <!-- SECTION 2: DEVICES -->
+  <div class="section-hdr">📱 2. DEVICES / DIGITALIZATION</div>
+  <div class="section-body" id="sec2"></div>
+
+  <!-- SECTION 3: LOGISTICS -->
+  <div class="section-hdr">📦 3. LOGISTICS</div>
+  <div class="section-body" id="sec3"></div>
+
+  <!-- SECTION 4: DISTRIBUTION PROCESS -->
+  <div class="section-hdr">🏫 4. DISTRIBUTION PROCESS</div>
+  <div class="section-body" id="sec4"></div>
+
+  <!-- SECTION 5: DATA COLLECTION -->
+  <div class="section-hdr">📊 5. DATA COLLECTION & SYNCHING</div>
+  <div class="section-body" id="sec5"></div>
+
+  <!-- SECTION 6: SBC -->
+  <div class="section-hdr">📢 6. SOCIAL BEHAVIOURAL CHANGE</div>
+  <div class="section-body" id="sec6"></div>
+
+  <!-- SECTION 7: OBSERVATIONS -->
+  <div class="section-hdr">🔍 7. OBSERVATIONS / RECOMMENDATIONS</div>
+  <div class="section-body" id="sec7"></div>
+
+  <!-- SECTION 8: EXIT INTERVIEWS -->
+  <div class="section-hdr">🗣 8. EXIT INTERVIEWS — ITN BENEFICIARIES</div>
+  <div class="section-body" id="sec8"></div>
+
+  <!-- SUBMIT -->
+  <div class="card">
+    <div class="form-group">
+      <label class="label">MONITOR SIGNATURE / REMARKS</label>
+      <input class="input" id="monitor_remarks" placeholder="Any additional remarks or observations...">
+    </div>
+    <button class="submit-btn" id="submitBtn" onclick="submitForm()">✓ SUBMIT SUPERVISION CHECKLIST</button>
+  </div>
+</div>
+
+<div class="footer">Developed by <strong>ICF-SL</strong> · 2026</div>
+
+<script>
+// ═══════════════════════════════════════
+// CONFIG
+// ═══════════════════════════════════════
+const GAS_URL   = 'https://script.google.com/macros/s/AKfycbymRy-M5v0fVLWUjw4IXYhd1oIR2ZvnP_Dzr_iGR-Th0cMIpmE2ntGeujWYH7-C6NHIzA/exec';
+const CSV_FILE  = 'cascading_data.csv';
+let locationData = {};
+let answers = {};
+let urbanRural = '';
+
+// ═══════════════════════════════════════
+// QUESTIONS
+// ═══════════════════════════════════════
+const SECTIONS = [
+  { id:'sec1', questions:[
+    { id:'q1_1',  text:'Are all team members (3/4) present?',                               type:'yn' },
+    { id:'q1_2',  text:'Have all team members been recruited locally?',                     type:'yn' },
+    { id:'q1_3',  text:'How many members of the team were trained?',                        type:'num', min:0, max:6 },
+    { id:'q1_4',  text:'Is there a waiting area for school pupils?',                        type:'yn' },
+    { id:'q1_5',  text:'Are there tables for the distribution of nets?',                    type:'yn' },
+    { id:'q1_6',  text:'Is there a rope or line for crowd control?',                        type:'yn' },
+    { id:'q1_7',  text:'Are health workers communicating effectively with school pupils?',  type:'yn' },
+    { id:'q1_note', text:'If any answer is NO — corrective actions/solutions taken:', type:'note' }
+  ]},
+  { id:'sec2', questions:[
+    { id:'q2_1',  text:'Are devices available at the PHU?',                                 type:'yn' },
+    { id:'q2_2',  text:'Is there a safe space at the PHU for storage of the devices?',      type:'yn' },
+    { id:'q2_3',  text:'Is there a secured charging area in the PHU for the devices?',      type:'yn' },
+    { id:'q2_4',  text:'Are devices available at the school?',                              type:'yn' },
+    { id:'q2_5',  text:'Are all devices sufficiently charged for the day\'s work?',         type:'yn' },
+    { id:'q2_6',  text:'Has the team experienced any challenges with the devices?',         type:'yn' },
+    { id:'q2_7',  text:'If yes — type of challenge:',                                       type:'multi', opts:['Charging','Synching','Network','Other (specify)'], showIf:{id:'q2_6',val:'Y'} },
+    { id:'q2_note', text:'If any answer is NO — corrective actions/solutions taken:', type:'note' }
+  ]},
+  { id:'sec3', questions:[
+    { id:'q3_1',  text:'Is there a secure storage space for ITNs at the PHU?',              type:'yn' },
+    { id:'q3_2',  text:'Is the stocksheet being used at the PHU?',                          type:'yn' },
+    { id:'q3_3',  text:'If yes — is the stocksheet up to date?',                            type:'yn', showIf:{id:'q3_2',val:'Y'} },
+    { id:'q3_4',  text:'Has the ITN stock been properly recorded in the device?',           type:'yn' },
+    { id:'q3_5',  text:'Has the PHU supervisor arranged net movement to the school?',       type:'yn' },
+    { id:'q3_6',  text:'Have PHU supervisors communicated with school authorities about ITN distribution?', type:'yn' },
+    { id:'q3_7',  text:'Are nets available at the distribution point (school)?',            type:'yn' },
+    { id:'q3_8',  text:'Is there a plan for re-stocking when supplies are running low?',    type:'yn' },
+    { id:'q3_note', text:'If any answer is NO — corrective actions/solutions taken:', type:'note' }
+  ]},
+  { id:'sec4', questions:[
+    { id:'q4_1',  text:'Is the team following tasks for verifying registers and issuing nets using the device?', type:'yn' },
+    { id:'q4_2',  text:'Is there a tracking system to indicate a pupil has received an ITN?', type:'yn' },
+    { id:'q4_3',  text:'Are pupils whose names are NOT in the register being served?',       type:'yn' },
+    { id:'q4_note', text:'If any answer is NO — corrective actions/solutions taken:', type:'note' }
+  ]},
+  { id:'sec5', questions:[
+    { id:'q5_1',  text:'Check device data — are distribution team members recording nets accurately?', type:'yn' },
+    { id:'q5_2',  text:'Does the data on the device align with the physical stock of nets remaining?', type:'yn' },
+    { id:'q5_3',  text:'Does the enrollment of pupils tally with the nets given to them?',  type:'yn' },
+    { id:'q5_note', text:'If any answer is NO — corrective actions/solutions taken:', type:'note' }
+  ]},
+  { id:'sec6', questions:[
+    { id:'q6_1',  text:'Are health education messages on malaria prevention passed to pupils?', type:'yn' },
+    { id:'q6_2',  text:'Is the health worker giving key messages on use and care of ITN?',   type:'yn' },
+    { id:'q6_3',  text:'Is the health worker using flash cards to demonstrate ITN use and care?', type:'yn' },
+    { id:'q6_note', text:'If any answer is NO — corrective actions/solutions taken:', type:'note' }
+  ]},
+  { id:'sec7', questions:[
+    { id:'q7_1',  text:'List good practices observed at the school during distribution:', type:'text' },
+    { id:'q7_2',  text:'Were there any additional problems observed during distribution?', type:'yn' },
+    { id:'q7_3',  text:'If yes — describe the problems observed:',                         type:'text', showIf:{id:'q7_2',val:'Y'} }
+  ]},
+  { id:'sec8', questions:[
+    { id:'q8_1',  text:'Are you (beneficiary) satisfied with the ITN distribution?',        type:'yn' },
+    { id:'q8_2',  text:'If no — reason for dissatisfaction:',                               type:'multi', showIf:{id:'q8_1',val:'N'}, opts:['School too crowded','Distribution time too long','Didn\'t get right number of nets','Health worker not attentive','Nets are dirty','School location too far','Other'] },
+    { id:'q8_3',  text:'Did you receive the nets?',                                         type:'yn' },
+    { id:'q8_4',  text:'How many nets did you expect to receive?',                          type:'num', min:1, max:10 },
+    { id:'q8_5',  text:'Did you receive any message about the nets or malaria at the school?', type:'yn' },
+    { id:'q8_6',  text:'If yes — what was the message?',                                    type:'text', showIf:{id:'q8_5',val:'Y'} },
+    { id:'q8_7',  text:'Did you receive information from any other channel about the ITN distribution?', type:'yn' },
+    { id:'q8_8',  text:'If yes — which medium?',                                            type:'multi', showIf:{id:'q8_7',val:'Y'}, opts:['Radio','Street announcement','Town criers','Pupils','CSOs','Social media'] }
+  ]}
+];
+
+// ═══════════════════════════════════════
+// RENDER SECTIONS
+// ═══════════════════════════════════════
+function renderSections() {
+  SECTIONS.forEach(sec => {
+    const el = document.getElementById(sec.id);
+    if (!el) return;
+    el.innerHTML = sec.questions.map(q => renderQ(q)).join('');
+  });
+}
+
+function renderQ(q) {
+  if (q.type === 'yn') {
+    const hidden = q.showIf ? 'style="display:none;"' : '';
+    return `<div class="q-item" id="qi-${q.id}" ${hidden}>
+      <div class="q-text">${q.text}</div>
+      <div class="q-opts">
+        <div class="q-opt" id="opt-${q.id}-Y" onclick="setYN('${q.id}','Y')">✓ YES</div>
+        <div class="q-opt" id="opt-${q.id}-N" onclick="setYN('${q.id}','N')">✗ NO</div>
+      </div>
+    </div>`;
+  }
+  if (q.type === 'note' || q.type === 'text') {
+    const hidden = (q.showIf || q.id.endsWith('_note')) ? 'style="display:none;"' : '';
+    return `<div class="q-item" id="qi-${q.id}" ${hidden}>
+      <div class="q-text">${q.text}</div>
+      <div class="q-note"><input class="input" id="inp-${q.id}" placeholder="Write your answer here..." oninput="setVal('${q.id}',this.value); updateProgress()"></div>
+    </div>`;
+  }
+  if (q.type === 'num') {
+    return `<div class="q-item" id="qi-${q.id}">
+      <div class="q-text">${q.text}</div>
+      <div class="num-pick">
+        <button class="num-btn" onclick="changeNum('${q.id}',-1)">−</button>
+        <div class="num-val" id="numval-${q.id}">0</div>
+        <button class="num-btn" onclick="changeNum('${q.id}',+1)">+</button>
+      </div>
+    </div>`;
+  }
+  if (q.type === 'multi') {
+    const hidden = q.showIf ? 'style="display:none;"' : '';
+    const opts = q.opts.map((o,i) => `<div class="m-opt" id="mopt-${q.id}-${i}" onclick="toggleMulti('${q.id}',${i},'${o}')">${o}</div>`).join('');
+    return `<div class="q-item" id="qi-${q.id}" ${hidden}>
+      <div class="q-text">${q.text}</div>
+      <div class="multi-opts">${opts}</div>
+    </div>`;
+  }
+  return '';
+}
+
+// ═══════════════════════════════════════
+// ANSWER SETTERS
+// ═══════════════════════════════════════
+function setYN(id, val) {
+  answers[id] = val;
+  ['Y','N'].forEach(v => {
+    const el = document.getElementById(`opt-${id}-${v}`);
+    if (el) { el.classList.remove('active-y','active-n'); }
+  });
+  const el = document.getElementById(`opt-${id}-${val}`);
+  if (el) el.classList.add(val==='Y' ? 'active-y' : 'active-n');
+
+  // Apply skip logic — show/hide conditional questions
+  applySkipLogic(id, val);
+
+  // Notes: show if ANY Y/N in section answered N
+  applyNoteVisibility(id);
+
+  updateProgress();
+}
+
+function applySkipLogic(triggerId, val) {
+  // Find all questions that showIf this triggerId
+  SECTIONS.forEach(sec => {
+    sec.questions.forEach(q => {
+      if (q.showIf && q.showIf.id === triggerId) {
+        const el = document.getElementById('qi-'+q.id);
+        if (!el) return;
+        const show = (val === q.showIf.val);
+        el.style.display = show ? 'block' : 'none';
+        // Clear answer if hiding
+        if (!show) {
+          delete answers[q.id];
+          // Reset Y/N buttons
+          ['Y','N'].forEach(v => document.getElementById('opt-'+q.id+'-'+v)?.classList.remove('active-y','active-n'));
+          // Reset multi
+          const inpEl = document.getElementById('inp-'+q.id);
+          if (inpEl) inpEl.value = '';
+        }
+      }
+    });
+  });
+}
+
+// Notes after each section: show if ANY question in that group answered N
+const NOTE_GROUPS = {
+  q1_note: ['q1_1','q1_2','q1_4','q1_5','q1_6','q1_7'],
+  q2_note: ['q2_1','q2_2','q2_3','q2_4','q2_5','q2_6'],
+  q3_note: ['q3_1','q3_2','q3_3','q3_4','q3_5','q3_6','q3_7','q3_8'],
+  q4_note: ['q4_1','q4_2','q4_3'],
+  q5_note: ['q5_1','q5_2','q5_3'],
+  q6_note: ['q6_1','q6_2','q6_3'],
+};
+function applyNoteVisibility(changedId) {
+  Object.entries(NOTE_GROUPS).forEach(([noteId, group]) => {
+    if (!group.includes(changedId)) return;
+    const anyNo = group.some(qid => answers[qid] === 'N');
+    const el = document.getElementById('qi-'+noteId);
+    if (el) el.style.display = anyNo ? 'block' : 'none';
+  });
+}
+
+function setVal(id, val) { answers[id] = val; }
+
+function changeNum(id, delta) {
+  const cur = parseInt(answers[id] || 0);
+  const q   = SECTIONS.flatMap(s=>s.questions).find(q=>q.id===id);
+  const min = q?.min ?? 0;
+  const max = q?.max ?? 99;
+  const nv  = Math.max(min, Math.min(max, cur + delta));
+  answers[id] = nv;
+  const el = document.getElementById(`numval-${id}`);
+  if (el) el.textContent = nv;
+  updateProgress();
+}
+
+function toggleMulti(id, idx, val) {
+  if (!answers[id]) answers[id] = [];
+  const el = document.getElementById(`mopt-${id}-${idx}`);
+  const i  = answers[id].indexOf(val);
+  if (i >= 0) { answers[id].splice(i,1); el?.classList.remove('sel'); }
+  else        { answers[id].push(val);   el?.classList.add('sel'); }
+  updateProgress();
+}
+
+function setUrbanRural(val) {
+  urbanRural = val;
+  document.getElementById('opt-urban').classList.toggle('active-sel', val==='Urban');
+  document.getElementById('opt-rural').classList.toggle('active-sel', val==='Rural');
+  updateProgress();
+}
+
+// ═══════════════════════════════════════
+// PROGRESS
+// ═══════════════════════════════════════
+function updateProgress() {
+  const total = SECTIONS.flatMap(s=>s.questions).filter(q=>q.type==='yn').length;
+  const done  = Object.keys(answers).filter(k => answers[k] === 'Y' || answers[k] === 'N').length;
+  const pct   = Math.round((done/total)*100);
+  document.getElementById('progFill').style.width = pct + '%';
+  document.getElementById('progTxt').textContent  = pct + '% complete (' + done + ' of ' + total + ' questions answered)';
+}
+
+// ═══════════════════════════════════════
+// CASCADING CSV
+// ═══════════════════════════════════════
+function loadCSV() {
+  Papa.parse(CSV_FILE, {
+    download: true, header: true, skipEmptyLines: true,
+    transformHeader: h => h.replace(/^\uFEFF/,'').trim(),
+    complete(results) {
+      results.data.forEach(row => {
+        const d   = (row['District']    ||'').trim();
+        const c   = (row['Chiefdom']    ||'').trim();
+        const fac = (row['Name of PHU'] ||'').trim();
+        const com = (row['Community']   ||'').trim();
+        const sch = (row['School Name'] ||'').trim();
+        if (!d||!c||!fac||!com||!sch) return;
+        if (!locationData[d]) locationData[d]={};
+        if (!locationData[d][c]) locationData[d][c]={};
+        if (!locationData[d][c][fac]) locationData[d][c][fac]={};
+        if (!locationData[d][c][fac][com]) locationData[d][c][fac][com]=[];
+        if (!locationData[d][c][fac][com].includes(sch)) locationData[d][c][fac][com].push(sch);
+      });
+      populateDistricts();
+    }
+  });
+}
+
+function populateDistricts() {
+  const sel = document.getElementById('district');
+  Object.keys(locationData).sort().forEach(d => {
+    const o = new Option(d,d); sel.appendChild(o);
+  });
+}
+function onDistrictChange() {
+  const d = document.getElementById('district').value;
+  const sel = document.getElementById('chiefdom');
+  sel.innerHTML = '<option value="">Select Chiefdom...</option>';
+  sel.disabled = !d;
+  ['facility','community','school_name'].forEach(id => {
+    const s = document.getElementById(id);
+    s.innerHTML = '<option value="">'+{facility:'Select Facility...',community:'Select Community...',school_name:'Select School...'}[id]+'</option>';
+    s.disabled = true;
+  });
+  if (!d) return;
+  Object.keys(locationData[d]||{}).sort().forEach(c => sel.appendChild(new Option(c,c)));
+}
+function onChiefdomChange() {
+  const d = document.getElementById('district').value;
+  const c = document.getElementById('chiefdom').value;
+  const sel = document.getElementById('facility');
+  sel.innerHTML = '<option value="">Select Facility...</option>';
+  sel.disabled = !c;
+  ['community','school_name'].forEach(id => {
+    const s = document.getElementById(id);
+    s.innerHTML = '<option value="">'+{community:'Select Community...',school_name:'Select School...'}[id]+'</option>';
+    s.disabled = true;
+  });
+  if (!c) return;
+  Object.keys(locationData[d]?.[c]||{}).sort().forEach(f => sel.appendChild(new Option(f,f)));
+}
+function onFacilityChange() {
+  const d = document.getElementById('district').value;
+  const c = document.getElementById('chiefdom').value;
+  const f = document.getElementById('facility').value;
+  const sel = document.getElementById('community');
+  sel.innerHTML = '<option value="">Select Community...</option>';
+  sel.disabled = !f;
+  document.getElementById('school_name').innerHTML = '<option value="">Select School...</option>';
+  document.getElementById('school_name').disabled = true;
+  if (!f) return;
+  Object.keys(locationData[d]?.[c]?.[f]||{}).sort().forEach(com => sel.appendChild(new Option(com,com)));
+}
+function onCommunityChange() {
+  const d   = document.getElementById('district').value;
+  const c   = document.getElementById('chiefdom').value;
+  const f   = document.getElementById('facility').value;
+  const com = document.getElementById('community').value;
+  const sel = document.getElementById('school_name');
+  sel.innerHTML = '<option value="">Select School...</option>';
+  sel.disabled = !com;
+  if (!com) return;
+  (locationData[d]?.[c]?.[f]?.[com]||[]).sort().forEach(s => sel.appendChild(new Option(s,s)));
+}
+
+// ═══════════════════════════════════════
+// SUBMIT
+// ═══════════════════════════════════════
+function submitForm() {
+  const district  = document.getElementById('district').value;
+  const chiefdom  = document.getElementById('chiefdom').value;
+  const facility  = document.getElementById('facility').value;
+  const community = document.getElementById('community').value;
+  const school    = document.getElementById('school_name').value;
+  const monitor   = document.getElementById('monitor_name').value.trim();
+  const visitDate = document.getElementById('visit_date').value;
+
+  if (!district||!chiefdom||!facility||!community||!school) { notify('Please complete all location fields.','err'); return; }
+  if (!monitor)    { notify('Please enter the monitor\'s name.','err'); return; }
+  if (!visitDate)  { notify('Please enter the date of visit.','err'); return; }
+
+  const payload = {
+    action:        'saveMonitoring',
+    district, chiefdom, facility, community,
+    school_name:   school,
+    urban_rural:   urbanRural,
+    monitor_name:  monitor,
+    monitor_org:   document.getElementById('monitor_org').value.trim(),
+    visit_date:    visitDate,
+    monitor_remarks: document.getElementById('monitor_remarks').value.trim(),
+    timestamp:     new Date().toISOString(),
+    datetime:      new Date().toLocaleString('en-SL'),
+    ...Object.fromEntries(Object.entries(answers).map(([k,v]) => [k, Array.isArray(v) ? v.join(', ') : v]))
+  };
+
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = true;
+  btn.textContent = 'Submitting...';
+
+  fetch(GAS_URL, { method:'POST', body: JSON.stringify(payload) })
+    .then(r => r.json())
+    .then(() => {
+      notify('✅ Checklist submitted successfully!');
+      btn.textContent = '✓ SUBMITTED';
+      btn.style.background = '#1a7a3c';
+    })
+    .catch(() => {
+      // Save locally if offline
+      const saved = JSON.parse(localStorage.getItem('monitoring_pending')||'[]');
+      saved.push(payload);
+      localStorage.setItem('monitoring_pending', JSON.stringify(saved));
+      notify('📥 Saved offline — will sync when online.');
+      btn.disabled = false;
+      btn.textContent = '✓ SUBMIT SUPERVISION CHECKLIST';
+    });
+}
+
+function notify(msg, type) {
+  const el = document.getElementById('notif');
+  el.textContent = msg;
+  el.className   = 'notif' + (type==='err' ? ' err' : '');
+  el.style.display = 'block';
+  setTimeout(() => el.style.display='none', 4000);
+}
+
+// ═══════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════
+document.addEventListener('DOMContentLoaded', () => {
+  renderSections();
+  loadCSV();
+  document.getElementById('visit_date').value = new Date().toISOString().split('T')[0];
+  updateProgress();
+});
+</script>
+</body>
+</html>
