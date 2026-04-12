@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SBD ID Card Generator – ICF-SL / NMCP</title>
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;}
+        body{background:#eef2f7;font-family:'Oswald',Arial,sans-serif;color:#111;min-height:100vh;padding:12px;}
+
+        /* ── PAGE HEADER ── */
+        .page-header{background:#004080;color:#fff;padding:18px 20px;border-radius:10px 10px 0 0;text-align:center;margin-bottom:0;}
+        .hdr-logos{display:flex;justify-content:center;align-items:center;gap:16px;margin-bottom:10px;}
+        .hdr-logo-box{width:64px;height:64px;background:#fff;border-radius:8px;padding:5px;display:flex;align-items:center;justify-content:center;overflow:hidden;}
+        .hdr-logo-box img{width:100%;height:100%;object-fit:contain;}
+        .hdr-logo-box .fallback{font-size:11px;font-weight:700;color:#004080;text-align:center;line-height:1.3;}
+        .hdr-title{font-size:11px;font-weight:700;letter-spacing:.5px;}
+        .hdr-tagline{font-size:9px;opacity:.85;margin-top:2px;}
+        .hdr-main{font-size:20px;font-weight:700;letter-spacing:1px;margin:10px 0 4px;}
+        .hdr-sub{font-size:11px;opacity:.9;}
+
+        /* ── MAIN CARD ── */
+        .content-card{border:3px double #004080;border-radius:0 0 12px 12px;background:#fff;box-shadow:0 4px 16px rgba(0,0,0,.1);padding:8px;}
+        .content-inner{padding:14px;}
+        .layout{display:flex;flex-direction:column;gap:20px;}
+        @media(min-width:900px){.layout{display:grid;grid-template-columns:420px 1fr;gap:28px;}}
+
+        /* ── SECTION HEADERS ── */
+        .sec-hdr{background:#004080;color:#fff;padding:9px 12px;border-radius:6px;display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+        .sec-num{background:#fff;color:#004080;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;}
+        .sec-lbl{font-size:12px;font-weight:700;letter-spacing:.5px;}
+
+        /* ── FORM ── */
+        .fg{margin-bottom:11px;}
+        .fl{display:block;color:#004080;font-size:10px;font-weight:700;margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px;}
+        .fl .req{color:#dc3545;margin-left:2px;}
+        .fi,.fs{width:100%;padding:9px 11px;border:2px solid #004080;border-radius:6px;font-size:13px;font-family:'Oswald',Arial,sans-serif;font-weight:500;color:#111;background:#fff;}
+        .fi:focus,.fs:focus{outline:none;border-color:#0056b3;box-shadow:0 0 0 3px rgba(0,64,128,.1);}
+        .fi[readonly]{background:#f0f4f8;color:#555;}
+        .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+
+        /* ── SELECT ── */
+        .fs{appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23004080' stroke-width='2.5'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:34px;cursor:pointer;}
+        .fs:invalid{color:#aaa;}
+
+        /* ── PHOTO ── */
+        .photo-wrap{display:flex;flex-direction:column;align-items:center;gap:10px;margin-bottom:14px;}
+        .photo-box{width:110px;height:140px;border:3px dashed #004080;border-radius:8px;display:flex;align-items:center;justify-content:center;overflow:hidden;background:#f8f9fa;}
+        .photo-box.has-photo{border-style:solid;}
+        .photo-box img{width:100%;height:100%;object-fit:cover;}
+        .photo-ph{text-align:center;color:#aaa;}
+        .photo-ph span{font-size:38px;display:block;}
+        .photo-ph p{font-size:9px;margin-top:4px;}
+        .photo-btns{display:flex;gap:7px;flex-wrap:wrap;justify-content:center;}
+        .photo-btns button{padding:9px 13px;font-size:11px;min-width:75px;}
+
+        /* ── BUTTONS ── */
+        .btn-navy{padding:11px 15px;background:#004080;color:#fff;border:2px solid #004080;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;text-transform:uppercase;font-family:'Oswald',Arial,sans-serif;transition:.3s;-webkit-tap-highlight-color:transparent;}
+        .btn-navy:hover{background:#0056b3;border-color:#0056b3;}
+        .btn-outline{padding:11px 15px;background:#fff;color:#004080;border:2px solid #004080;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;text-transform:uppercase;font-family:'Oswald',Arial,sans-serif;transition:.3s;-webkit-tap-highlight-color:transparent;}
+        .btn-outline:hover{background:#004080;color:#fff;}
+        .btn-gold{padding:13px 20px;background:#ffc107;color:#000;border:2px solid #ffc107;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;text-transform:uppercase;font-family:'Oswald',Arial,sans-serif;transition:.3s;-webkit-tap-highlight-color:transparent;}
+        .btn-gold:hover{background:#e0a800;border-color:#e0a800;}
+        .btn-green{padding:11px 15px;background:#28a745;color:#fff;border:2px solid #28a745;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;text-transform:uppercase;font-family:'Oswald',Arial,sans-serif;transition:.3s;-webkit-tap-highlight-color:transparent;}
+        .btn-green:hover{background:#218838;}
+        .btn-danger{padding:11px 15px;background:#dc3545;color:#fff;border:2px solid #dc3545;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;text-transform:uppercase;font-family:'Oswald',Arial,sans-serif;transition:.3s;-webkit-tap-highlight-color:transparent;}
+        .btn-danger:hover{background:#c82333;}
+        .btn-full{width:100%;}
+
+        /* ── PREVIEW PANEL ── */
+        .preview-section{background:#f0f4f8;border:2px solid #004080;border-radius:8px;padding:14px;}
+        .prev-title{font-size:13px;font-weight:700;color:#004080;text-align:center;margin-bottom:14px;text-transform:uppercase;}
+        .card-wrapper{display:flex;justify-content:center;padding:14px;background:repeating-linear-gradient(45deg,#dce3ea,#dce3ea 10px,#eef2f7 10px,#eef2f7 20px);border-radius:8px;overflow-x:auto;}
+
+        /* ─────────── ID CARD ─────────── */
+        .id-card{
+            width:460px;height:auto;
+            position:relative;
+            font-family:'Oswald',Arial,sans-serif;
+            overflow:hidden;border-radius:12px;
+            box-shadow:0 4px 20px rgba(0,0,0,.2);
+            background:linear-gradient(135deg,#fff 0%,#f5f8fc 100%);
+            border:2px solid #004080;
+            flex-shrink:0;
+        }
+        /* Top bar */
+        .ic-top{
+            background:#004080;
+            padding:6px 12px;
+            display:flex;align-items:center;gap:10px;
+            position:relative;
+        }
+        .ic-top-logo{width:36px;height:36px;background:#fff;border-radius:6px;padding:3px;flex-shrink:0;display:flex;align-items:center;justify-content:center;overflow:hidden;}
+        .ic-top-logo img{width:100%;height:100%;object-fit:contain;}
+        .ic-top-logo .fb{font-size:9px;font-weight:700;color:#004080;text-align:center;line-height:1.2;}
+        .ic-top-center{flex:1;text-align:center;}
+        .ic-org{color:#fff;font-size:10px;font-weight:700;letter-spacing:.5px;line-height:1.3;}
+        .ic-subtitle{color:#ffc107;font-size:8px;font-weight:600;letter-spacing:.3px;}
+        .ic-top-nmcp{width:56px;height:56px;background:#fff;border-radius:6px;padding:2px;flex-shrink:0;display:flex;align-items:center;justify-content:center;overflow:hidden;}
+        .ic-top-nmcp img{width:52px;height:52px;object-fit:contain;image-rendering:crisp-edges;image-rendering:-webkit-optimize-contrast;}
+        .ic-top-nmcp .fb{font-size:7px;font-weight:700;color:#004080;text-align:center;line-height:1.2;}
+
+        /* Card body: 3 columns */
+        .ic-body{display:grid;grid-template-columns:95px 1fr 85px;gap:8px;padding:8px 12px 6px;}
+
+        /* Left: photo */
+        .ic-photo{width:95px;height:115px;border:2px solid #004080;border-radius:6px;overflow:hidden;background:#eee;}
+        .ic-photo img{width:100%;height:100%;object-fit:cover;}
+        .ic-photo-ph{width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#bbb;font-size:28px;}
+
+        /* Middle: info */
+        .ic-info{display:flex;flex-direction:column;justify-content:center;padding-top:2px;}
+        .ic-name{font-size:13px;font-weight:700;color:#111;margin-bottom:1px;line-height:1.2;}
+        .ic-id-num{font-size:11px;font-weight:700;color:#004080;margin-bottom:4px;}
+        .ic-role-badge{display:inline-block;color:#004080;font-size:9px;font-weight:700;margin-bottom:5px;letter-spacing:.3px;text-transform:uppercase;}
+        .ic-line{font-size:8px;color:#444;margin-bottom:2px;line-height:1.4;}
+        .ic-line strong{color:#222;}
+
+        /* Right: QR */
+        .ic-qr{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;}
+        .ic-qr-box{width:75px;height:75px;background:#fff;border:1px solid #ddd;border-radius:4px;display:flex;align-items:center;justify-content:center;overflow:hidden;}
+        .ic-qr-box canvas,
+        .ic-qr-box img{width:72px!important;height:72px!important;}
+        .ic-qr-label{font-size:7px;color:#666;font-weight:600;text-align:center;letter-spacing:.3px;}
+
+        /* Bottom strip */
+        .ic-bottom{
+            background:#004080;
+            padding:4px 12px;
+            display:flex;justify-content:space-between;align-items:center;
+        }
+        .ic-bottom span{color:#ffc107;font-size:8px;font-weight:700;letter-spacing:.5px;}
+        .ic-bottom .ic-valid{color:#fff;font-size:7px;}
+
+        /* ── DOWNLOAD BUTTONS ── */
+        .dl-btns{display:flex;gap:10px;justify-content:center;margin-top:16px;flex-wrap:wrap;}
+        .dl-btns button{flex:1;min-width:100px;}
+
+        /* ── SUBMIT SECTION ── */
+        .submit-section{margin-top:14px;padding:12px;background:#e7f3ff;border:2px solid #004080;border-radius:8px;}
+        .submit-title{font-size:12px;font-weight:700;color:#004080;margin-bottom:10px;text-transform:uppercase;}
+        .gas-url-row{display:flex;gap:8px;align-items:flex-start;}
+        .gas-url-row .fi{font-size:11px;}
+        .submit-status{font-size:11px;margin-top:8px;padding:8px;border-radius:6px;display:none;}
+        .submit-status.ok{background:#d4edda;color:#155724;border:1px solid #28a745;display:block;}
+        .submit-status.err{background:#f8d7da;color:#721c24;border:1px solid #dc3545;display:block;}
+
+        /* ── CAMERA MODAL ── */
+        .modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.9);z-index:1000;align-items:center;justify-content:center;padding:10px;}
+        .modal.active{display:flex;}
+        .modal-content{background:#fff;border-radius:12px;padding:14px;max-width:480px;width:100%;max-height:90vh;overflow-y:auto;}
+        .modal-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+        .modal-hdr h3{font-size:15px;font-weight:700;color:#004080;}
+        .modal-close{background:#f0f0f0;border:none;font-size:22px;cursor:pointer;color:#666;width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;}
+        .cam-mode{text-align:center;padding:8px;background:#e7f3ff;border-radius:6px;margin-bottom:10px;font-size:11px;font-weight:600;color:#004080;}
+        .cam-container{background:#000;border-radius:8px;overflow:hidden;}
+        .cam-container video{width:100%;display:block;max-height:50vh;object-fit:cover;}
+        .cam-container canvas{display:none;}
+        .cam-btns{display:flex;gap:8px;justify-content:center;margin-top:10px;flex-wrap:wrap;}
+        .cam-btns button{flex:1;min-width:85px;max-width:140px;}
+        .btn-teal{padding:11px 15px;background:#17a2b8;color:#fff;border:2px solid #17a2b8;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;text-transform:uppercase;font-family:'Oswald',Arial,sans-serif;transition:.3s;}
+        .btn-teal:hover{background:#138496;}
+
+        /* ── NOTIFICATION ── */
+        .notif{position:fixed;top:20px;left:50%;transform:translateX(-50%);padding:11px 22px;border-radius:8px;font-weight:600;z-index:2000;display:none;box-shadow:0 4px 12px rgba(0,0,0,.2);font-size:12px;max-width:90%;text-align:center;}
+        .notif.ok{background:#d4edda;color:#155724;border:2px solid #28a745;display:block;}
+        .notif.err{background:#f8d7da;color:#721c24;border:2px solid #dc3545;display:block;}
+
+        /* ── FOOTER ── */
+        .page-footer{background:#004080;color:#fff;padding:13px;text-align:center;font-size:10px;line-height:1.7;border-radius:0 0 8px 8px;margin-top:0;}
+
+        /* ── MOBILE ── */
+        @media(max-width:560px){
+            .id-card{width:300px;height:auto;}
+            .ic-body{grid-template-columns:68px 1fr 60px;gap:5px;padding:5px 8px 4px;}
+            .ic-photo{width:68px;height:82px;}
+            .ic-top-logo,.ic-top-nmcp{width:28px;height:28px;}
+            .ic-name{font-size:10px;}
+            .ic-id-num{font-size:9px;}
+            .ic-role-badge{font-size:7px;}
+            .ic-line{font-size:7px;}
+            .ic-qr-box{width:55px;height:55px;}
+            .ic-qr-box canvas,.ic-qr-box img{width:52px!important;height:52px!important;}
+            .ic-qr-label{font-size:6px;}
+            .ic-org{font-size:8px;}
+            .ic-subtitle{font-size:7px;}
+            .ic-top{padding:5px 8px;}
+            .ic-bottom{padding:3px 8px;}
+            .row2{grid-template-columns:1fr;}
+        }
+    </style>
+</head>
+<body>
+
+<div style="max-width:1300px;margin:0 auto;">
+<div class="page-header">
+    <div class="hdr-logos">
+        <div class="hdr-logo-box">
+            <img src="ICF-SL.jpg" alt="ICF-SL">
+        </div>
+        <div style="text-align:center;">
+            <div class="hdr-title">Informatics Consultancy Firm – Sierra Leone (ICF-SL)</div>
+            <div class="hdr-tagline"><em>Driving Data-Driven Solutions for Health and Development</em></div>
+            <div class="hdr-main">SBD ID CARD GENERATOR</div>
+            <div class="hdr-sub">School-Based Distribution of ITNs · National Malaria Control Programme</div>
+        </div>
+    </div>
+</div>
+
+<div class="content-card">
+<div class="content-inner">
+<div class="layout">
+
+    <!-- ══════════ LEFT CONTROLS ══════════ -->
+    <div>
+
+        <!-- PHOTO -->
+        <div class="sec-hdr"><span class="sec-num">1</span><span class="sec-lbl">PHOTO <span style="color:#ffc107;">*</span></span></div>
+        <div class="photo-wrap">
+            <div class="photo-box" id="photoBox">
+                <div class="photo-ph"><span>👤</span><p>No photo</p></div>
+            </div>
+            <div class="photo-btns">
+                <button class="btn-navy" onclick="openCamera()">📷 Camera</button>
+                <button class="btn-danger" onclick="clearPhoto()">✕ Clear</button>
+            </div>
+        </div>
+
+        <!-- PERSONAL DETAILS -->
+        <div class="sec-hdr"><span class="sec-num">2</span><span class="sec-lbl">PERSONAL DETAILS</span></div>
+
+        <div class="fg">
+            <label class="fl">Full Name <span class="req">*</span></label>
+            <input type="text" class="fi" id="fullName" oninput="updatePreview()" placeholder="Enter full name">
+        </div>
+
+        <div class="fg">
+            <label class="fl">Telephone <span class="req">*</span></label>
+            <input type="tel" class="fi" id="telephone" oninput="handleTelInput()" placeholder="e.g. 079000000" maxlength="9" pattern="[0-9]{9}" inputmode="numeric">
+        </div>
+
+        <div class="fg">
+            <label class="fl">ID Number (auto)</label>
+            <input type="text" class="fi" id="idNumber" readonly placeholder="SBD-{telephone}">
+        </div>
+
+        <div class="fg">
+            <label class="fl">Role <span class="req">*</span></label>
+            <select class="fi fs" id="roleSelect" onchange="updatePreview()" required>
+                <option value="" disabled selected>— Select Role —</option>
+                <option value="National Monitor">National Monitor</option>
+                <option value="SQOs">SQOs</option>
+                <option value="District Supervisor">District Supervisor</option>
+                <option value="Chiefdom Supervisor">Chiefdom Supervisor</option>
+                <option value="Conveyor">Conveyor</option>
+                <option value="DHMT">DHMT</option>
+            </select>
+        </div>
+
+        <div class="fg">
+            <label class="fl">District <span class="req">*</span></label>
+            <select class="fi fs" id="districtSelect" onchange="updatePreview()" required>
+                <option value="" disabled selected>— Select District —</option>
+                <option value="Pujehun">Pujehun</option>
+                <option value="Bonthe">Bonthe</option>
+                <option value="Koinadugu">Koinadugu</option>
+                <option value="Port Loko">Port Loko</option>
+            </select>
+        </div>
+
+        <div class="row2">
+            <div class="fg">
+                <label class="fl">Valid Until</label>
+                <input type="text" class="fi" id="validUntil" readonly value="May 31st, 2026">
+            </div>
+            <div class="fg">
+                <label class="fl">Issued By</label>
+                <input type="text" class="fi" id="issuedBy" readonly value="NMCP/ICF-SL">
+            </div>
+        </div>
+
+        <!-- SUBMIT TO GAS -->
+        <div class="submit-section">
+            <div class="submit-title">☁ Submit Data to ICF-SL Server</div>
+            <button class="btn-green btn-full" onclick="submitToGAS()">📤 Submit Record</button>
+            <div class="submit-status" id="submitStatus"></div>
+        </div>
+
+    </div>
+
+    <!-- ══════════ RIGHT PREVIEW ══════════ -->
+    <div>
+        <div class="preview-section">
+            <div class="prev-title">🪪 Live Preview</div>
+            <div class="card-wrapper">
+                <div class="id-card" id="cardPreview"></div>
+            </div>
+
+            <!-- DOWNLOAD -->
+            <div class="dl-btns">
+                <button class="btn-gold" onclick="downloadCard('png')">📥 Download PNG</button>
+                <button class="btn-outline" onclick="downloadCard('jpeg')">📥 Download JPEG</button>
+            </div>
+        </div>
+    </div>
+
+</div><!-- /layout -->
+</div>
+</div>
+
+<div class="page-footer">
+    <strong>Informatics Consultancy Firm – Sierra Leone (ICF-SL)</strong><br>
+    Driving Data-Driven Solutions for Health and Development<br>
+    <span style="font-size:9px;">© 2025 ICF-SL · School-Based Distribution of ITNs · NMCP</span>
+</div>
+</div>
+
+<!-- CAMERA MODAL -->
+<div class="modal" id="cameraModal">
+    <div class="modal-content">
+        <div class="modal-hdr">
+            <h3>📷 Take Photo</h3>
+            <button class="modal-close" onclick="closeCamera()">×</button>
+        </div>
+        <div class="cam-mode" id="camMode">📱 Front Camera (Selfie)</div>
+        <div class="cam-container">
+            <video id="camVideo" autoplay playsinline></video>
+            <canvas id="camCanvas"></canvas>
+        </div>
+        <div class="cam-btns">
+            <button class="btn-teal" onclick="switchCamera()">🔄 Switch</button>
+            <button class="btn-gold" onclick="capturePhoto()">📸 Capture</button>
+            <button class="btn-outline" onclick="closeCamera()">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<div class="notif" id="notif"></div>
+
+<script>
+/* ─────────────────────────────────────────────────────────────
+   GAS PROXY ENDPOINT  ← replace with your deployed Web App URL
+   ───────────────────────────────────────────────────────────── */
+const GAS_URL = "https://script.google.com/macros/s/AKfycbwZoVy_5LQNFuaTb0N_69CF9fc40usq6zhdWCQQorhKPAc7yEov4oo2C_DIF4JlbLwQ/exec";
+
+/* ─── HARDCODED LOGOS (place ICF-SL.jpg & NMCP.png in same folder as this HTML) ─── */
+const NMCP_LOGO = 'NMCP.png';
+
+/* ─── STATE ─── */
+let uploadedPhoto = null;
+let cameraStream = null;
+let facingMode = 'user';
+let qrInstance = null;
+
+/* ─── PHONE → ID ─── */
+function handleTelInput(){
+    const input = document.getElementById('telephone');
+    // Strip anything that isn't a digit
+    let clean = input.value.replace(/[^0-9]/g, '');
+    // Enforce 9-digit max
+    if(clean.length > 9) clean = clean.slice(0, 9);
+    input.value = clean;
+    document.getElementById('idNumber').value = clean.length === 9 ? 'SBD-' + clean : '';
+    updatePreview();
+}
+
+/* ─── PHOTO ─── */
+function renderPhotoBox(){
+    const b = document.getElementById('photoBox');
+    if(uploadedPhoto){
+        b.innerHTML = `<img src="${uploadedPhoto}" alt="Photo">`;
+        b.classList.add('has-photo');
+    } else {
+        b.innerHTML = `<div class="photo-ph"><span>👤</span><p>No photo</p></div>`;
+        b.classList.remove('has-photo');
+    }
+}
+function clearPhoto(){ uploadedPhoto=null; renderPhotoBox(); updatePreview(); }
+
+/* ─── CAMERA ─── */
+async function openCamera(){
+    facingMode='user'; updateCamIndicator();
+    try{ await startCam(); document.getElementById('cameraModal').classList.add('active'); }
+    catch(e){ notify('Camera not available','err'); }
+}
+async function startCam(){
+    const v=document.getElementById('camVideo');
+    if(cameraStream) cameraStream.getTracks().forEach(t=>t.stop());
+    try{
+        cameraStream = await navigator.mediaDevices.getUserMedia({video:{facingMode,width:{ideal:640},height:{ideal:480}}});
+        v.srcObject=cameraStream; updateCamIndicator();
+    } catch(err){
+        facingMode = facingMode==='user'?'environment':'user';
+        cameraStream = await navigator.mediaDevices.getUserMedia({video:{width:{ideal:640},height:{ideal:480}}});
+        v.srcObject=cameraStream;
+        document.getElementById('camMode').textContent='📷 Camera Active';
+    }
+}
+async function switchCamera(){
+    facingMode = facingMode==='user'?'environment':'user';
+    try{ await startCam(); notify(`Switched to ${facingMode==='user'?'Front':'Back'} Camera`,'ok'); }
+    catch(e){ notify('Cannot switch camera','err'); }
+}
+function updateCamIndicator(){
+    const el=document.getElementById('camMode');
+    el.innerHTML = facingMode==='user'?'📱 <strong>Front Camera</strong> (Selfie)':'📷 <strong>Back Camera</strong> (Rear)';
+}
+function closeCamera(){
+    if(cameraStream) cameraStream.getTracks().forEach(t=>t.stop()), cameraStream=null;
+    document.getElementById('camVideo').srcObject=null;
+    document.getElementById('cameraModal').classList.remove('active');
+}
+function capturePhoto(){
+    const v=document.getElementById('camVideo'), cv=document.getElementById('camCanvas'), ctx=cv.getContext('2d');
+    cv.width=v.videoWidth; cv.height=v.videoHeight;
+    if(facingMode==='user'){ ctx.translate(cv.width,0); ctx.scale(-1,1); }
+    ctx.drawImage(v,0,0); ctx.setTransform(1,0,0,1,0,0);
+    uploadedPhoto=cv.toDataURL('image/jpeg',.9);
+    renderPhotoBox(); updatePreview(); closeCamera(); notify('Photo captured!','ok');
+}
+
+/* ─── HELPERS ─── */
+function getVal(id){ return (document.getElementById(id)||{}).value||''; }
+function getSelect(id){ const el=document.getElementById(id); return el?el.value:''; }
+
+/* ─── QR CODE ─── */
+function buildQRData(d){
+    return `Name: ${d.name}\nID: ${d.idNum}\nRole: ${d.role}\nDistrict: ${d.district}\nTel: ${d.tel}`;
+}
+function renderQR(container, text){
+    container.innerHTML='';
+    if(!text.trim()){ container.innerHTML='<div style="font-size:9px;color:#aaa;text-align:center;padding:5px;">Fill form<br>to generate QR</div>'; return; }
+    try{
+        new QRCode(container, {
+            text: text,
+            width: 72, height: 72,
+            colorDark:'#004080', colorLight:'#ffffff',
+            correctLevel: QRCode.CorrectLevel.M
+        });
+    } catch(e){ container.innerHTML='<div style="font-size:9px;color:#e00;">QR Error</div>'; }
+}
+
+/* ─── MAIN PREVIEW ─── */
+function updatePreview(){
+    const card = document.getElementById('cardPreview');
+
+    const d = {
+        name:     getVal('fullName') || 'Full Name',
+        tel:      getVal('telephone') || '079000000',
+        idNum:    getVal('idNumber') || 'SBD-000',
+        role:     getSelect('roleSelect') || 'Role',
+        district: getSelect('districtSelect') || 'District',
+        validUntil: getVal('validUntil') || 'Dec 2025',
+        issuedBy:   getVal('issuedBy') || 'NMCP / ICF-SL',
+    };
+
+    const photoHtml = uploadedPhoto
+        ? `<img src="${uploadedPhoto}" alt="Photo">`
+        : `<div class="ic-photo-ph">👤</div>`;
+
+    const nmcpHtml = `<img src="${NMCP_LOGO}" alt="NMCP">`;
+
+    card.innerHTML = `
+        <div class="ic-top">
+            <div class="ic-top-nmcp">${nmcpHtml}</div>
+            <div class="ic-top-center">
+                <div class="ic-org">NATIONAL MALARIA CONTROL PROGRAMME – SIERRA LEONE</div>
+                <div class="ic-subtitle">SCHOOL-BASED DISTRIBUTION OF ITNs</div>
+            </div>
+        </div>
+        <div class="ic-body">
+            <div class="ic-photo">${photoHtml}</div>
+            <div class="ic-info">
+                <div class="ic-name">${d.name}</div>
+                <div class="ic-id-num">${d.idNum}</div>
+                <div class="ic-role-badge">${d.role}</div>
+                <div class="ic-line"><strong>District:</strong> ${d.district}</div>
+                <div class="ic-line"><strong>Tel:</strong> ${d.tel}</div>
+                <div class="ic-line"><strong>Valid Until:</strong> ${d.validUntil}</div>
+                <div class="ic-line"><strong>Issued By:</strong> ${d.issuedBy}</div>
+            </div>
+            <div class="ic-qr">
+                <div class="ic-qr-box" id="qrBox"></div>
+                <div class="ic-qr-label">SCAN TO VERIFY</div>
+            </div>
+        </div>
+        <div class="ic-bottom">
+            <span>ICF-SL · NMCP</span>
+            <span class="ic-valid">Informatics Consultancy Firm – Sierra Leone</span>
+        </div>
+    `;
+
+    // Render QR after DOM update
+    setTimeout(() => {
+        const qrBox = document.getElementById('qrBox');
+        if(qrBox) renderQR(qrBox, buildQRData(d));
+    }, 50);
+}
+
+/* ─── DOWNLOAD ─── */
+async function downloadCard(fmt){
+    const card = document.getElementById('cardPreview');
+    notify('Generating…','ok');
+    try{
+        const canvas = await html2canvas(card, {
+            scale:3, useCORS:true, allowTaint:true, backgroundColor:'#ffffff',
+            onclone: doc => {
+                // ensure QR renders correctly in clone
+            }
+        });
+        const name = getVal('fullName').replace(/\s+/g,'_') || 'SBD_Card';
+        const id = getVal('idNumber') || 'SBD';
+        const link = document.createElement('a');
+        link.download = `${id}_${name}.${fmt}`;
+        link.href = canvas.toDataURL(`image/${fmt}`, .95);
+        document.body.appendChild(link); link.click(); document.body.removeChild(link);
+        notify(`Downloaded as ${fmt.toUpperCase()}!`,'ok');
+    } catch(e){ notify('Error generating image.','err'); console.error(e); }
+}
+
+async function submitToGAS(){
+    if(!GAS_URL || GAS_URL.includes('YOUR_DEPLOYMENT_ID')){
+        const st = document.getElementById('submitStatus');
+        st.textContent = '⚠️ GAS URL not configured.';
+        st.className = 'submit-status err';
+        return;
+    }
+    const role     = getSelect('roleSelect');
+    const district = getSelect('districtSelect');
+    const tel      = getVal('telephone');
+    const name     = getVal('fullName').trim();
+
+    // Highlight missing fields
+    const fields = [
+        { id:'fullName',      ok: name.length > 0 },
+        { id:'telephone',     ok: tel.length === 9 },
+        { id:'roleSelect',    ok: role !== '' },
+        { id:'districtSelect',ok: district !== '' }
+    ];
+    let hasError = false;
+    fields.forEach(f => {
+        const el = document.getElementById(f.id);
+        if(el){
+            el.style.borderColor = f.ok ? '#004080' : '#dc3545';
+            el.style.boxShadow   = f.ok ? '' : '0 0 0 3px rgba(220,53,69,.15)';
+        }
+        if(!f.ok) hasError = true;
+    });
+
+    const errors = [];
+    if(!uploadedPhoto)   errors.push('Photo');
+    if(!name)            errors.push('Full Name');
+    if(tel.length !== 9) errors.push('Telephone (9 digits)');
+    if(!role)            errors.push('Role');
+    if(!district)        errors.push('District');
+
+    if(!uploadedPhoto){
+        document.getElementById('photoBox').style.borderColor = '#dc3545';
+    } else {
+        document.getElementById('photoBox').style.borderColor = '';
+    }
+
+    if(errors.length){
+        const st = document.getElementById('submitStatus');
+        st.textContent = '⚠️ Required: ' + errors.join(', ');
+        st.className = 'submit-status err';
+        notify('Fill all required fields','err');
+        return;
+    }
+
+    const payload = {
+        name, telephone: tel,
+        idNumber:   getVal('idNumber'),
+        role, district,
+        validUntil: getVal('validUntil'),
+        issuedBy:   getVal('issuedBy'),
+        timestamp:  new Date().toISOString()
+    };
+    notify('Submitting…','ok');
+    const st = document.getElementById('submitStatus');
+    st.textContent = '⏳ Sending to ICF-SL Server…';
+    st.className = 'submit-status ok';
+    try{
+        await fetch(GAS_URL, {
+            method:'POST',
+            headers:{'Content-Type':'application/json'},
+            body: JSON.stringify(payload),
+            mode:'no-cors'
+        });
+        st.textContent = '✅ Record submitted successfully!';
+        st.className = 'submit-status ok';
+        notify('Submitted!','ok');
+        // Reset field highlights on success
+        fields.forEach(f => {
+            const el = document.getElementById(f.id);
+            if(el){ el.style.borderColor=''; el.style.boxShadow=''; }
+        });
+    } catch(e){
+        st.textContent = '❌ Submission failed: ' + e.message;
+        st.className = 'submit-status err';
+        notify('Submission error','err');
+    }
+}
+
+/* ─── NOTIFICATION ─── */
+function notify(msg, type){
+    const n = document.getElementById('notif');
+    n.textContent = msg;
+    n.className = `notif ${type}`;
+    clearTimeout(n._t);
+    n._t = setTimeout(()=>{ n.className='notif'; }, 3000);
+}
+
+/* ─── INIT ─── */
+document.addEventListener('DOMContentLoaded', updatePreview);
+</script>
+</body>
+</html>
