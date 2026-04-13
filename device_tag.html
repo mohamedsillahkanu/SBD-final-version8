@@ -346,8 +346,7 @@ function loadCard(d, silent) {
     body.innerHTML = '';
 
     function cell(key, val) {
-        if (!val || !val.trim()) return '';
-        return '<div class="info-cell"><div class="info-key">' + key + '</div><div class="info-val">' + val + '</div></div>';
+        return '<div class="info-cell"><div class="info-key">' + key + '</div><div class="info-val">' + (val && val.trim() ? val : '—') + '</div></div>';
     }
 
     var cardCells =
