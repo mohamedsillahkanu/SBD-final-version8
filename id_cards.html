@@ -283,8 +283,8 @@
 <script>
 var GAS_URL = "https://script.google.com/macros/s/AKfycbwZoVy_5LQNFuaTb0N_69CF9fc40usq6zhdWCQQorhKPAc7yEov4oo2C_DIF4JlbLwQ/exec";
 var NMCP_LOGO = 'NMCP.png';
-var CASCADE_CSV = 'dms_cascading.csv';
-var CASCADE_ROLES = ['National Monitor','SQAOs','District Supervisor','Chiefdom Supervisor','Conveyor','DHMT','PHU Staff','Teacher'];
+var CASCADE_CSV = 'cascading_data.csv';
+var CASCADE_ROLES = ['National Monitor','SQOs','District Supervisor','Chiefdom Supervisor','Conveyor','DHMT','PHU Staff','Teacher'];
 
 var uploadedPhoto = null;
 var cameraStream  = null;
@@ -373,19 +373,13 @@ function cascadeFacility() {
 function getVal(id)     { return (document.getElementById(id)||{}).value||''; }
 function getRadio(name) { if(name==='role'){ var el=document.getElementById('roleSelect'); return el?el.value:''; } if(name==='district'){ var el=document.getElementById('districtSelect'); return el?el.value:''; } var el = document.querySelector('input[name="'+name+'"]:checked'); return el ? el.value : ''; }
 function getDistrict()  {
-    var role = getRadio('role');
-    if (CASCADE_ROLES.indexOf(role) !== -1) return getVal('cas-district');
-    return getRadio('district');
+    return getVal('cas-district');
 }
 function getChiefdom()  {
-    var role = getRadio('role');
-    if (CASCADE_ROLES.indexOf(role) !== -1) return getVal('cas-chiefdom');
-    return '';
+    return getVal('cas-chiefdom');
 }
 function getFacility()  {
-    var role = getRadio('role');
-    if (CASCADE_ROLES.indexOf(role) !== -1) return getVal('cas-facility');
-    return '';
+    return getVal('cas-facility');
 }
 
 /* ── TEL ── */
@@ -529,7 +523,7 @@ function submitToGAS() {
     if (tel.length !== 9) errors.push('Telephone (9 digits)');
     if (!role)           errors.push('Role');
     if (!district)       errors.push('District');
-    if (CASCADE_ROLES.indexOf(role) !== -1 && !facility) errors.push('Health Facility');
+    if ((role === 'PHU Staff' || role === 'Teacher') && !facility) errors.push('Health Facility');
     if (errors.length) {
         var st = document.getElementById('submitStatus');
         st.textContent = '⚠️ Required: ' + errors.join(', ');
