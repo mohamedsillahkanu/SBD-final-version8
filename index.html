@@ -18,6 +18,8 @@
     <link rel="manifest" href="manifest.json">
     <link rel="icon" type="image/png" sizes="512x512" href="./icon-maskable-512.png">
     <link rel="apple-touch-icon" href="./icon-maskable-512.png">
+    <link rel="apple-touch-icon" href="./icon-maskable-512.png">
+    <link rel="apple-touch-icon" href="./icon-maskable-512.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -517,6 +519,10 @@
                 <!-- FORM CONTENT -->
                 <div id="mainFormWrap">
 
+
+
+
+
                     <!-- Data Entry PPT Panel -->
                     <div id="de-panel-ppt" style="display:none;min-height:400px;padding:20px;background:#fff;flex-direction:column;gap:12px;">
                         <div style="font-family:'Oswald',sans-serif;font-size:13px;font-weight:700;color:#004080;text-transform:uppercase;letter-spacing:.5px;">📊 Presentation — Data Entry</div>
@@ -629,6 +635,8 @@
                             VIEW DATA
                             <small style="font-size:8px;opacity:.7;display:block;line-height:1.2;">(PMI/NMCP)</small>
                         </button>
+
+
 
                         <button class="app-tab t10-orange" id="viewAnalysisBtn" onclick="guardedAction('analysis')" title="Analysis Dashboard">
                             <span class="tab-lock"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></span>
@@ -1247,136 +1255,839 @@
         <!-- FULL-SCREEN ANALYSIS MODAL -->
         <div class="modal-overlay" id="analysisModal" style="align-items:stretch;padding:0;">
             <div style="background:#fff;width:100%;height:100%;display:flex;flex-direction:column;overflow:hidden;">
+
+                <!-- Modal header -->
+                <style>
+                @media(max-width:600px){
+                    #anDashHeader{padding:10px 12px !important;gap:8px !important;}
+                    #anDashIcon{display:none;}
+                    #anDashTitle{font-size:13px !important;}
+                    #anSubtitle{font-size:9px !important;}
+                    #anRefreshBtn{min-width:unset !important;padding:7px 10px !important;}
+                    .an-refresh-label{display:none;}
+                    .an-close-label{display:none;}
+                    .af-grp{min-width:calc(50% - 4px) !important;flex:0 0 calc(50% - 4px) !important;}
+                    #anTabBar button{min-width:80px !important;padding:10px 8px !important;font-size:10px !important;}
+                }
+                @media(max-width:400px){
+                    #anDashTitle{font-size:11px !important;}
+                    .af-grp{min-width:100% !important;flex:0 0 100% !important;}
+                }
+                </style>
                 <div id="anDashHeader" style="background:linear-gradient(135deg,#002d5a,#004080);color:#fff;padding:14px 20px;display:flex;align-items:center;gap:14px;flex-shrink:0;">
-                    <div id="anDashIcon" style="width:38px;height:38px;background:rgba(255,255,255,.15);border-radius:50%;display:flex;align-items:center;justify-content:center;"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" width="20" height="20"><path d="M18 20V10M12 20V4M6 20v-6"/></svg></div>
-                    <div style="flex:1;"><div id="anDashTitle" style="font-family:'Oswald',sans-serif;font-size:17px;font-weight:600;">ITN Distribution Analysis Dashboard</div><div id="anSubtitle" style="font-size:10px;">Loading data…</div></div>
-                    <button onclick="closeAnalysisModal()" style="background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);color:#fff;border-radius:8px;padding:7px 14px;cursor:pointer;">CLOSE</button>
+                    <div id="anDashIcon" style="width:38px;height:38px;background:rgba(255,255,255,.15);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" width="20" height="20"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
+                    </div>
+                    <div style="flex:1;min-width:0;">
+                        <div id="anDashTitle" style="font-family:'Oswald',sans-serif;font-size:17px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">ITN Distribution Analysis Dashboard</div>
+                        <div style="font-size:10px;color:rgba(255,255,255,.65);margin-top:1px;" id="anSubtitle">Loading data…</div>
+                    </div>
+                    <button id="anRefreshBtn" onclick="anRefresh()" style="background:rgba(240,165,0,.25);border:1px solid rgba(240,165,0,.5);color:#fff;border-radius:8px;padding:7px 14px;font-family:'Oswald',sans-serif;font-size:11px;letter-spacing:.5px;cursor:pointer;display:flex;align-items:center;gap:6px;min-width:130px;justify-content:center;flex-shrink:0;">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M21 2v6h-6M3 12a9 9 0 0115.36-6.36L21 8M3 22v-6h6M21 12a9 9 0 01-15.36 6.36L3 16"/></svg><span class="an-refresh-label">REFRESH</span>
+                    </button>
+                    <button onclick="closeAnalysisModal()" style="background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);color:#fff;border-radius:8px;padding:7px 14px;font-family:'Oswald',sans-serif;font-size:11px;letter-spacing:.5px;cursor:pointer;display:flex;align-items:center;gap:6px;flex-shrink:0;">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg><span class="an-close-label">CLOSE</span>
+                    </button>
                 </div>
+
+                <!-- Cascading filter bar -->
+                <div style="background:#e8f1fa;border-bottom:2px solid #c5d9f0;padding:10px 14px;display:flex;flex-wrap:wrap;gap:8px;align-items:flex-end;flex-shrink:0;">
+                    <style>
+                    .af-grp{display:flex;flex-direction:column;flex:1;min-width:95px;}
+                    .af-lbl{font-family:'Oswald',sans-serif;font-size:9px;color:#607080;letter-spacing:.6px;text-transform:uppercase;margin-bottom:3px;font-weight:600;}
+                    .af-sel{width:100%;padding:7px 10px;border:2px solid #b0c8e0;border-radius:8px;font-size:12px;font-family:'Oswald',sans-serif;background:#fff;outline:none;cursor:pointer;transition:border-color .15s,background .15s;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath fill='%23607080' d='M0 0l5 6 5-6z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 9px center;}
+                    .af-sel:focus{border-color:#004080;background-color:#f0f6ff;}
+                    .af-sel:disabled{background:#f4f7fa;color:#aaa;cursor:not-allowed;border-color:#d0dce8;}
+                    .af-sel option{font-family:sans-serif;}
+                    .af-btn{padding:8px 16px;border:none;border-radius:8px;font-family:'Oswald',sans-serif;font-size:12px;font-weight:600;letter-spacing:.5px;cursor:pointer;white-space:nowrap;transition:all .15s;flex-shrink:0;}
+                    .af-btn-primary{background:#004080;color:#fff;}
+                    .af-btn-primary:hover{background:#003060;}
+                    .af-btn-clear{background:#fff;color:#607080;border:2px solid #b0c8e0;}
+                    .af-btn-clear:hover{background:#dc3545;color:#fff;border-color:#dc3545;}
+                    </style>
+                    <div class="af-grp">
+                        <div class="af-lbl">🗺 District</div>
+                        <select id="af_district" class="af-sel" onchange="afCascade('district')"><option value="">All Districts</option></select>
+                    </div>
+                    <div class="af-grp">
+                        <div class="af-lbl">🏛 Chiefdom</div>
+                        <select id="af_chiefdom" class="af-sel" onchange="afCascade('chiefdom')" disabled><option value="">All Chiefdoms</option></select>
+                    </div>
+                    <div class="af-grp">
+                        <div class="af-lbl">🏥 PHU / Health Facility</div>
+                        <select id="af_facility" class="af-sel" onchange="afCascade('facility')" disabled><option value="">All PHUs</option></select>
+                    </div>
+
+                    <div style="display:flex;gap:6px;flex-shrink:0;align-self:flex-end;">
+                        <button class="af-btn af-btn-clear" onclick="clearAnalysisFilters()">✕ Clear</button>
+                    </div>
+                </div>
+
+                <!-- Tab bar -->
+                <div id="anTabBar" style="background:#fff;border-bottom:2px solid #c5d9f0;display:flex;flex-shrink:0;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;">
+                    <button id="anTab-analysis" onclick="switchAnTab('analysis')"
+                      style="flex:1;min-width:110px;padding:11px 16px;border:none;background:none;font-family:'Oswald',sans-serif;font-size:11px;font-weight:600;letter-spacing:.5px;color:#607080;text-transform:uppercase;border-bottom:3px solid transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>ANALYSIS
+                    </button>
+                    <button id="anTab-targets" onclick="switchAnTab('targets')"
+                      style="flex:1;min-width:110px;padding:11px 16px;border:none;background:none;font-family:'Oswald',sans-serif;font-size:11px;font-weight:600;letter-spacing:.5px;color:#607080;text-transform:uppercase;border-bottom:3px solid transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>TARGETS
+                    </button>
+                    <button id="anTab-dmsphu" onclick="switchAnTab('dmsphu')"
+                      style="flex:1;min-width:110px;padding:11px 16px;border:none;background:none;font-family:'Oswald',sans-serif;font-size:11px;font-weight:600;letter-spacing:.5px;color:#607080;text-transform:uppercase;border-bottom:3px solid transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>DMS/PHU
+                    </button>
+                </div>
+
+                <!-- Body: analysis / targets -->
                 <div id="analysisBody" style="flex:1;overflow-y:auto;padding:16px;background:#f0f4f8;"></div>
+                <div id="targetsBody" style="display:none;flex:1;overflow-y:auto;padding:16px;background:#f0f4f8;"></div>
+                <div id="dmsphuBody" style="display:none;flex:1;overflow-y:auto;padding:16px;background:#f0f4f8;"></div>
             </div>
         </div>
+
+        <!-- AI AGENT MODAL (injected by ai_agent.js) -->
+
+
+
 
         <div class="notification" id="notification"><span id="notificationText"></span></div>
 
     </div><!-- /appMain -->
 
+    <!-- ══════════════════════════════════════════
+         MODULE TABS (full-screen iframes)
+    ══════════════════════════════════════════ -->
     <style>
-    .module-overlay{ position:fixed; inset:0; background:#fff; z-index:8000; display:none; flex-direction:column; }
-    .module-overlay.show{ display:flex; }
-    .module-topbar{ background:linear-gradient(135deg,#002d5a,#004080); color:#fff; padding:12px 18px; display:flex; align-items:center; gap:12px; flex-shrink:0; }
-    .module-title{ font-family:'Oswald',sans-serif; font-size:16px; font-weight:600; letter-spacing:.8px; flex:1; }
-    .module-close{ background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.25); color:#fff; border-radius:7px; padding:6px 14px; cursor:pointer; }
-    .module-iframe{ flex:1; border:none; width:100%; background:#f0f4f8; }
+    .module-overlay{
+        position:fixed;inset:0;background:#fff;z-index:8000;
+        display:none;flex-direction:column;
+    }
+    .module-overlay.show{display:flex;}
+    .module-topbar{
+        background:linear-gradient(135deg,#002d5a,#004080);
+        color:#fff;padding:12px 18px;
+        display:flex;align-items:center;gap:12px;
+        flex-shrink:0;box-shadow:0 2px 10px rgba(0,0,0,.2);
+    }
+    .module-title{
+        font-family:'Oswald',sans-serif;font-size:16px;
+        font-weight:600;letter-spacing:.8px;text-transform:uppercase;flex:1;
+    }
+    .module-close{
+        background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);
+        color:#fff;border-radius:7px;padding:6px 14px;
+        font-family:'Oswald',sans-serif;font-size:11px;letter-spacing:.5px;
+        cursor:pointer;display:flex;align-items:center;gap:5px;transition:background .15s;
+    }
+    .module-close:hover{background:rgba(220,53,69,.7);border-color:#dc3545;}
+    .module-close svg{width:13px;height:13px;stroke:#fff;}
+    .module-iframe{flex:1;border:none;width:100%;background:#f0f4f8;}
+    .module-loading{
+        flex:1;display:flex;flex-direction:column;align-items:center;
+        justify-content:center;gap:16px;background:#f0f4f8;
+    }
+    .module-spinner{
+        width:44px;height:44px;border:4px solid #d0dce8;
+        border-top-color:#004080;border-radius:50%;
+        animation:mod-spin .8s linear infinite;
+    }
+    @keyframes mod-spin{to{transform:rotate(360deg);}}
+    .module-not-loaded{
+        flex:1;display:flex;flex-direction:column;align-items:center;
+        justify-content:center;gap:12px;background:#f0f4f8;text-align:center;padding:40px;
+    }
+    .module-not-loaded svg{width:52px;height:52px;stroke:#c0ccd8;fill:none;}
+    .module-not-loaded h3{font-family:'Oswald',sans-serif;font-size:17px;color:#004080;text-transform:uppercase;letter-spacing:.5px;}
+    .module-not-loaded p{font-size:13px;color:#8090a0;max-width:360px;line-height:1.6;}
+    .module-not-loaded code{background:#e4eaf2;padding:2px 8px;border-radius:4px;font-size:12px;color:#004080;}
+    /* Module buttons in controls bar */
+    .module-btn{
+        display:flex;align-items:center;gap:5px;
+        padding:7px 12px;border-radius:8px;
+        font-family:'Oswald',sans-serif;font-size:11px;
+        font-weight:500;letter-spacing:.5px;text-transform:uppercase;
+        cursor:pointer;transition:all .15s;border:1.5px solid;
+        flex-shrink:0;
+    }
+    .module-btn svg{width:13px;height:13px;stroke:currentColor;fill:none;}
     </style>
 
-    <div id="mod-monitoring" class="module-overlay"></div>
+    <!-- The 6 module overlays -->
+    <div id="mod-monitoring"    class="module-overlay"></div>
     <div id="mod-reconciliation" class="module-overlay"></div>
-    <div id="mod-schoolqr" class="module-overlay"></div>
-    <div id="mod-idcards" class="module-overlay"></div>
-    <div id="mod-devicetag" class="module-overlay"></div>
-    <div id="mod-device" class="module-overlay"></div>
-    <div id="mod-movement" class="module-overlay"></div>
-    <div id="mod-itnreceived" class="module-overlay"></div>
-    <div id="mod-attendance" class="module-overlay"></div>
-    <div id="mod-report" class="module-overlay"></div>
+    <div id="mod-schoolqr"      class="module-overlay"></div>
+    <div id="mod-idcards"       class="module-overlay"></div>
+    <div id="mod-devicetag"     class="module-overlay"></div>
+    <div id="mod-device"        class="module-overlay"></div>
+    <div id="mod-movement"      class="module-overlay"></div>
+    <div id="mod-itnreceived"   class="module-overlay"></div>
+    <div id="mod-attendance"    class="module-overlay"></div>
+    <div id="mod-report"        class="module-overlay"></div>
 
     <script>
-    // MODULE DEFINITIONS
+    // Module definitions with Tableau 10 colors
     const MODULES = [
-        { id:'monitoring',     file:'monitoring.html',           label:'Monitoring',             icon:'M2 3h20v14H2zM8 21h8M12 17v4', color:'#af7aa1', dark:'#9a6291' },
-        { id:'reconciliation', file:'itn_reconciliation.html',   label:'ITN Reconciliation',     icon:'M9 7h6M9 11h6M9 15h4M17 21H7a2 2 0 01-2-2V5a2 2 0 012-2h7l5 5v11a2 2 0 01-2 2z', color:'#9c755f', dark:'#7e5d4b' },
-        { id:'schoolqr',       file:'school_qr_generator.html',  label:'School QR Generator',    icon:'M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h3v3M17 14v3M14 17h3', color:'#59a14f', dark:'#3d7a35' },
-        { id:'idcards',        file:'id_cards.html',             label:'ID Cards',               icon:'M2 5h20v14H2zM8 12a2 2 0 100-4 2 2 0 000 4zM14 10h4M14 14h4', color:'#4e79a7', dark:'#3a5f8a' },
-        { id:'devicetag',      file:'device_tag.html',           label:'Device Tag',             icon:'M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82zM7 7h.01', color:'#76b7b2', dark:'#5a9a95' },
-        { id:'device',         file:'device_tracking.html',      label:'Device Tracking',        icon:'M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z', color:'#d4ae30', dark:'#b89520' },
-        { id:'movement',       file:'itn_movement.html',         label:'ITN Movement',           icon:'M5 12h14M12 5l7 7-7 7', color:'#ff9da7', dark:'#e8818c' },
-        { id:'itnreceived',    file:'itn_received.html',         label:'ITN Received',           icon:'M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3', color:'#2196F3', dark:'#1565C0' },
+        { id:'monitoring',     file:'monitoring.html',           label:'Monitoring',             icon:'M2 3h20v14H2zM8 21h8M12 17v4',                                                                                     color:'#af7aa1', dark:'#9a6291' },
+        { id:'reconciliation', file:'itn_reconciliation.html',   label:'ITN Reconciliation',     icon:'M9 7h6M9 11h6M9 15h4M17 21H7a2 2 0 01-2-2V5a2 2 0 012-2h7l5 5v11a2 2 0 01-2 2z',                                 color:'#9c755f', dark:'#7e5d4b' },
+        { id:'schoolqr',       file:'school_qr_generator.html',  label:'School QR Generator',    icon:'M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h3v3M17 14v3M14 17h3',                                                color:'#59a14f', dark:'#3d7a35' },
+        { id:'idcards',        file:'id_cards.html',             label:'ID Cards',               icon:'M2 5h20v14H2zM8 12a2 2 0 100-4 2 2 0 000 4zM14 10h4M14 14h4',                                                     color:'#4e79a7', dark:'#3a5f8a' },
+        { id:'devicetag',      file:'device_tag.html',           label:'Device Tag',             icon:'M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82zM7 7h.01',                       color:'#76b7b2', dark:'#5a9a95' },
+        { id:'device',         file:'device_tracking.html',      label:'Device Tracking',        icon:'M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z',                                    color:'#d4ae30', dark:'#b89520' },
+        { id:'movement',       file:'itn_movement.html',         label:'ITN Movement',           icon:'M5 12h14M12 5l7 7-7 7',                                                                                            color:'#ff9da7', dark:'#e8818c' },
+        { id:'itnreceived',    file:'itn_received.html',         label:'ITN Received',            icon:'M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3',                                                    color:'#2196F3', dark:'#1565C0' },
         { id:'attendance',     file:'attendance_payment.html',   label:'Attendance & Payment',   icon:'M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 7a4 4 0 100 8 4 4 0 000-8zM23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75', color:'#c8991a', dark:'#a07a10' },
-        { id:'report',         file:'distribution_report.html',  label:'Distribution Report',    icon:'M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8zM14 2v6h6M16 13H8M16 17H8M10 9H8', color:'#17becf', dark:'#109aaa' }
+        { id:'report',         file:'distribution_report.html',  label:'Distribution Report',    icon:'M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8zM14 2v6h6M16 13H8M16 17H8M10 9H8',                          color:'#17becf', dark:'#109aaa' },
+        { id:'forcesync',      file:'force_sync.html',           label:'Force Sync',             icon:'M21 2v6h-6M3 12a9 9 0 0115.36-6.36L21 8M3 22v-6h6M21 12a9 9 0 01-15.36 6.36L3 16',                                  color:'#28a745', dark:'#1e7a32' }
     ];
 
-    function openModule(id) {
-        const mod = MODULES.find(m => m.id === id);
+    // Sub-tab content per module (video, ppt, tool)
+    // Update these paths to point to your actual files
+    const MODULE_RESOURCES = {
+        dataentry:      { video: 'https://youtu.be/Jt3k97hQ8ck', ppt: '' },
+        monitoring:     { video: '', ppt: '' },
+        reconciliation: { video: '', ppt: '' },
+        device:         { video: '', ppt: '' },
+        movement:       { video: '', ppt: '' },
+        itnreceived:    { video: '', ppt: '' },
+        attendance:     { video: '', ppt: '' },
+        report:         { video: '', ppt: '' },
+    };
+
+    function openModuleSubTab(id, tab) {
         const el = document.getElementById('mod-' + id);
+        if (!el) return;
+        // Update active tab buttons
+        el.querySelectorAll('.mod-subtab').forEach(b => b.classList.remove('active'));
+        const btn = el.querySelector('.mod-subtab[data-tab="'+tab+'"]');
+        if (btn) btn.classList.add('active');
+
+        const body = document.getElementById('mod-body-' + id);
+        if (!body) return;
+        const mod = MODULES.find(m => m.id === id);
+        const res = MODULE_RESOURCES[id] || {};
+
+        if (tab === 'tool') {
+            body.innerHTML = `
+              <div class="module-loading" id="mod-loading-${id}" style="display:flex;">
+                <div class="module-spinner"></div>
+                <div style="font-family:'Oswald',sans-serif;font-size:13px;color:#607080;">Loading ${mod?.label}…</div>
+              </div>
+              <iframe class="module-iframe" id="mod-frame-${id}" src=""
+                style="display:none;width:100%;height:100%;border:none;"
+                onload="document.getElementById('mod-loading-${id}').style.display='none';this.style.display='block';"
+                onerror="document.getElementById('mod-loading-${id}').innerHTML='<div style=\'text-align:center;padding:30px;\'>⚠ Could not load module.</div>';">
+              </iframe>`;
+            const frame = document.getElementById('mod-frame-' + id);
+            if (frame && !frame.src.includes(mod.file)) {
+                setTimeout(() => { frame.src = mod.file; }, 50);
+            }
+        } else if (tab === 'video') {
+            const src = res.video || '';
+            body.innerHTML = src
+                ? `<div style="padding:16px;height:100%;display:flex;flex-direction:column;gap:12px;">
+                    <div style="font-family:'Oswald',sans-serif;font-size:12px;font-weight:700;color:#004080;letter-spacing:.5px;text-transform:uppercase;">📹 Training Video</div>
+                    <video controls style="width:100%;border-radius:10px;border:2px solid #dde3ee;flex:1;background:#000;">
+                      <source src="${src}" type="video/mp4">Your browser does not support video.
+                    </video>
+                   </div>`
+                : `<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:12px;padding:30px;text-align:center;">
+                    <div style="width:64px;height:64px;background:#f0f4f8;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:28px;">🎬</div>
+                    <div style="font-family:'Oswald',sans-serif;font-size:14px;font-weight:700;color:#004080;">No Video Available</div>
+                    <div style="font-size:12px;color:#888;">Upload a training video for this module.</div>
+                   </div>`;
+        } else if (tab === 'ppt') {
+            const src = res.ppt || '';
+            body.innerHTML = src
+                ? `<div style="padding:16px;height:100%;display:flex;flex-direction:column;gap:12px;">
+                    <div style="font-family:'Oswald',sans-serif;font-size:12px;font-weight:700;color:#004080;letter-spacing:.5px;text-transform:uppercase;">📊 Presentation / PDF</div>
+                    <iframe src="${src}" style="width:100%;flex:1;border-radius:10px;border:2px solid #dde3ee;" allowfullscreen></iframe>
+                   </div>`
+                : `<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:12px;padding:30px;text-align:center;">
+                    <div style="width:64px;height:64px;background:#f0f4f8;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:28px;">📊</div>
+                    <div style="font-family:'Oswald',sans-serif;font-size:14px;font-weight:700;color:#004080;">No Presentation Available</div>
+                    <div style="font-size:12px;color:#888;">Upload a PDF or PowerPoint for this module.</div>
+                   </div>`;
+        }
+    }
+
+    // Build each overlay on first open (lazy)
+    function openModule(id) {
+        const mod  = MODULES.find(m => m.id === id);
+        const el   = document.getElementById('mod-' + id);
         if (!mod || !el) return;
+
+        // Build inner HTML once
         if (!el.dataset.built) {
             el.dataset.built = '1';
-            el.innerHTML = `<div class="module-topbar"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" width="20" height="20"><path d="${mod.icon}"/></svg><div class="module-title">${mod.label}</div><button class="module-close" onclick="closeModule('${id}')">CLOSE</button></div><iframe class="module-iframe" src="${mod.file}"></iframe>`;
+            el.innerHTML = `
+              <div class="module-topbar" style="background:linear-gradient(135deg,${mod.dark},${mod.color});">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" width="20" height="20" style="flex-shrink:0"><path d="${mod.icon}"/></svg>
+                <div class="module-title">${mod.label}</div>
+                <div style="display:flex;gap:6px;align-items:center;margin-left:auto;">
+                  <button class="module-close" onclick="closeModule('${id}')">
+                    <svg viewBox="0 0 24 24" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>CLOSE
+                  </button>
+                </div>
+              </div>
+              <div id="mod-body-${id}" style="flex:1;display:flex;flex-direction:column;overflow:hidden;">
+                <div class="module-loading" id="mod-loading-${id}">
+                  <div class="module-spinner"></div>
+                  <div style="font-family:'Oswald',sans-serif;font-size:13px;color:#607080;letter-spacing:.5px;">Loading ${mod.label}…</div>
+                </div>
+                <iframe class="module-iframe" id="mod-frame-${id}" src=""
+                style="display:none;"
+                onload="onModuleLoad('${id}')"
+                onerror="onModuleError('${id}')">
+              </iframe>
+              <div class="module-not-loaded" id="mod-error-${id}" style="display:none;">
+                <svg viewBox="0 0 24 24" stroke-width="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8zM14 2v6h6"/></svg>
+                <h3>${mod.label}</h3>
+                <p>The file <code>${mod.file}</code> was not found.<br>
+                Upload <strong>${mod.file}</strong> to your deployment folder (same location as <strong>index.html</strong>) and reload.</p>
+              </div>`;
+
+            // Start loading the iframe
+            setTimeout(() => {
+                const frame = document.getElementById('mod-frame-' + id);
+                if (frame) frame.src = mod.file;
+            }, 50);
         }
+
         el.classList.add('show');
         document.body.style.overflow = 'hidden';
     }
-    function closeModule(id) { const el = document.getElementById('mod-' + id); if(el) el.classList.remove('show'); document.body.style.overflow = ''; }
-    window.openModule = openModule;
+
+    // ── Data Entry sub-tab switcher ─────────────────────────
+    window.showDataEntrySubTab = function(tab) {
+        // Show sub-tab bar
+        const bar = document.getElementById('dataEntrySubTabs');
+        if (bar) bar.style.display = 'flex';
+
+        // Update button styles
+        document.querySelectorAll('.de-subtab').forEach(b => {
+            const active = b.getAttribute('data-tab') === tab;
+            b.style.background = active ? 'rgba(255,255,255,.25)' : 'rgba(255,255,255,.1)';
+            b.style.borderColor = active ? 'rgba(255,255,255,.5)' : 'rgba(255,255,255,.3)';
+            b.style.color = active ? '#fff' : 'rgba(255,255,255,.8)';
+        });
+
+        // Hide all panels
+        ['tool','video','ppt'].forEach(t => {
+            const p = document.getElementById('de-panel-' + t);
+            if (p) p.style.display = 'none';
+        });
+        const formEl = document.getElementById('mainFormScroll');
+
+        if (tab === 'tool') {
+            if (formEl) formEl.style.display = 'block';
+        } else if (tab === 'video') {
+            if (formEl) formEl.style.display = 'none';
+            
+            if (panel) panel.style.display = 'flex';
+            // Load video if configured
+            const src = MODULE_RESOURCES.dataentry?.video || '';
+            if (src) {
+                                                                            }
+        } else if (tab === 'ppt') {
+            if (formEl) formEl.style.display = 'none';
+            const panel = document.getElementById('de-panel-ppt');
+            if (panel) panel.style.display = 'flex';
+            const src = MODULE_RESOURCES.dataentry?.ppt || '';
+            if (src) {
+                document.getElementById('de-ppt-el').src = src;
+                document.getElementById('de-ppt-frame').style.display = 'block';
+                document.getElementById('de-ppt-empty').style.display = 'none';
+            }
+        }
+    };
+
+    function onModuleLoad(id) {
+        const frame   = document.getElementById('mod-frame-'   + id);
+        const loading = document.getElementById('mod-loading-' + id);
+        const errDiv  = document.getElementById('mod-error-'   + id);
+        if (!frame) return;
+        if (loading) loading.style.display = 'none';
+        if (errDiv)  errDiv.style.display  = 'none';
+        if (frame)   frame.style.display   = 'block';
+    }
+
+    function onModuleError(id) {
+        const frame   = document.getElementById('mod-frame-'   + id);
+        const loading = document.getElementById('mod-loading-' + id);
+        const errDiv  = document.getElementById('mod-error-'   + id);
+        if (loading) loading.style.display = 'none';
+        if (frame)   frame.style.display   = 'none';
+        if (errDiv)  errDiv.style.display  = 'flex';
+    }
+
+    function closeModule(id) {
+        const el = document.getElementById('mod-' + id);
+        if (el) el.classList.remove('show');
+        document.body.style.overflow = '';
+    }
+
+    window.openModule  = openModule;
     window.closeModule = closeModule;
 
-    // ========== DATA ENTRY SUB-TABS (TOOL, VIDEO, PPT) FIX - WORKING ==========
-    (function() {
-        function initDataEntrySubTabs() {
-            const toolPanel = document.getElementById('de-panel-tool');
-            const videoPanel = document.getElementById('de-panel-video');
-            const pptPanel = document.getElementById('de-panel-ppt');
-            const toolBtn = document.querySelector('.de-subtab-btn[data-subtab="tool"]');
-            const videoBtn = document.querySelector('.de-subtab-btn[data-subtab="video"]');
-            const pptBtn = document.querySelector('.de-subtab-btn[data-subtab="ppt"]');
-            
-            if (!toolPanel || !videoPanel || !pptPanel) {
-                console.warn("Data entry panels not found, retrying...");
-                setTimeout(initDataEntrySubTabs, 500);
-                return;
-            }
-            
-            function showPanel(active) {
-                toolPanel.style.display = 'none';
-                videoPanel.style.display = 'none';
-                pptPanel.style.display = 'none';
-                if (active === 'tool') toolPanel.style.display = 'block';
-                if (active === 'video') videoPanel.style.display = 'block';
-                if (active === 'ppt') pptPanel.style.display = 'block';
-                if (toolBtn) toolBtn.classList.toggle('active', active === 'tool');
-                if (videoBtn) videoBtn.classList.toggle('active', active === 'video');
-                if (pptBtn) pptBtn.classList.toggle('active', active === 'ppt');
-            }
-            
-            if (toolBtn) toolBtn.onclick = (e) => { e.preventDefault(); showPanel('tool'); };
-            if (videoBtn) videoBtn.onclick = (e) => { e.preventDefault(); showPanel('video'); };
-            if (pptBtn) pptBtn.onclick = (e) => { e.preventDefault(); showPanel('ppt'); };
-            
-            // Ensure PPT panel has content if empty
-            if (pptPanel && pptPanel.innerHTML.trim() === '') {
-                pptPanel.innerHTML = `<div style="text-align:center;padding:40px;"><iframe src="https://docs.google.com/gview?url=https://www.who.int/docs/default-source/malaria/who-itn-guidelines.pdf?sfvrsn=4&embedded=true" style="width:100%;height:500px;border:none;border-radius:12px;"></iframe><p style="margin-top:12px;">ITN Distribution Guidelines (PDF)</p></div>`;
-            }
-            if (videoPanel && videoPanel.innerHTML.trim() === '') {
-                videoPanel.innerHTML = `<div style="position:relative;padding-bottom:56.25%;height:0;"><iframe src="https://www.youtube.com/embed/Jt3k97hQ8ck?rel=0" style="position:absolute;top:0;left:0;width:100%;height:100%;border-radius:12px;" frameborder="0" allowfullscreen></iframe></div><p style="margin-top:12px;text-align:center;">ITN Distribution Training Video</p>`;
-            }
-            
-            showPanel('tool');
+    // Close on Escape
+    document.addEventListener('keydown', e => {
+        if (e.key === 'Escape') {
+            MODULES.forEach(m => closeModule(m.id));
         }
-        
-        if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initDataEntrySubTabs);
-        else initDataEntrySubTabs();
-    })();
-
-    window.openDataEntry = function() { 
-        document.getElementById('formCardWrap').style.display = 'block';
-        document.getElementById('formCardWrap').scrollIntoView({ behavior: 'smooth' });
-    };
-    window.previousSection = function() { alert("Demo: Previous section (full form logic in script_option2.js)"); };
-    window.doSubmit = function() { alert("Demo: Form submitted (simulated)."); };
-    window.nextSection = function() { alert("Demo: Next section (full form logic in script_option2.js)"); };
-    window.selectMethod = function(m) { document.getElementById('method-next-btn').disabled = false; document.getElementById('method-next-btn').style.opacity = '1'; window._entryMethod = m; };
-    window.proceedFromMethodSection = function() { if(window._entryMethod) nextSection(); };
-    window.startSchoolQRScan = function() { alert("QR Scanner would open here (requires camera permissions)"); };
-    window.stopSchoolQRScan = function() {};
-    window.clearQRFill = function() {};
-    window.captureGPS = function() { alert("GPS capturing (simulated)"); };
-    window.clearTeamSignature = function(n) {};
-    window.toggleNewSchoolInput = function() {};
-    window.updateNewSchoolName = function(v) {};
-    window.openAnalysisModal = function() { document.getElementById('analysisModal').style.display = 'flex'; };
-    window.closeAnalysisModal = function() { document.getElementById('analysisModal').style.display = 'none'; };
-    window.icfAiOpen = function() { alert("AI Agent module would open here"); };
-    window.updateApp = function() { alert("Checking for updates..."); };
+    });
     </script>
+
+    <script src="script_option2.js?v=17"></script>
+    <script src="ai_agent.js"></script>
+
+<script>
+// ════════════════════════════════════════════════════
+// APP LOCK
+
+
+// ════════════════════════════════════════════════════
+// QR CODE SCAN — auto-fill school fields (read-only)
+// ════════════════════════════════════════════════════
+let _qrFilled = false;
+let _qrScanner = null;
+
+// Called when DATA ENTRY tab is unlocked — show form and scroll to it
+window.openDataEntry = function() {
+    const wrap = document.getElementById('formCardWrap');
+    if (wrap) {
+        wrap.style.display = 'block';
+        setTimeout(() => {
+            wrap.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 100);
+    }
+};
+
+// Called by START SURVEY button on section 1
+window.showEntryMethodModal = function() {
+    // Reset radio state
+    ['qr','manual'].forEach(m => {
+        const dot  = document.getElementById('em-dot-'+m);
+        const lbl  = document.getElementById('em-lbl-'+m);
+        if(dot) dot.style.display = 'none';
+        if(lbl) { lbl.style.borderColor='#dde5ee'; lbl.style.background=''; }
+    });
+    const btn = document.getElementById('em-proceed-btn');
+    if(btn) { btn.disabled=true; btn.style.background='#ccc'; btn.style.cursor='not-allowed'; }
+    window._selectedEntryMethod = null;
+    const modal = document.getElementById('entryMethodModal');
+    if (modal) modal.style.display = 'flex';
+};
+
+// Ensure Section B always shows content — if no method chosen, show modal
+window.ensureSectionBVisible = function() {
+    // Only act when on section 3 (school details)
+    if (!state || state.currentSection !== 3) return;
+    var qrBlock     = document.getElementById('qrScanBlock');
+    var manualBlock = document.getElementById('manualEntryBlock');
+    var nav         = document.getElementById('sectionBNav');
+    var method      = window._entryMethod;
+    if (!method) {
+        // No method chosen — go back to section 2
+        previousSection && previousSection();
+        return;
+    }
+    if (method === 'qr') {
+        if (qrBlock)     qrBlock.style.display    = 'block';
+        if (manualBlock) manualBlock.style.display = 'none';
+    } else {
+        if (qrBlock)     qrBlock.style.display    = 'none';
+        if (manualBlock) manualBlock.style.display = 'block';
+    }
+    if (nav) nav.style.display = 'flex';
+};
+
+window.selectEntryMethod = function(method) {
+    window._selectedEntryMethod = method;
+    // Update radio visuals
+    ['qr','manual'].forEach(m => {
+        const dot = document.getElementById('em-dot-'+m);
+        const lbl = document.getElementById('em-lbl-'+m);
+        if(dot) dot.style.display = m===method ? 'block' : 'none';
+        if(lbl) {
+            lbl.style.borderColor = m===method ? '#004080' : '#dde5ee';
+            lbl.style.background  = m===method ? '#e8f1fb' : '';
+        }
+    });
+    // Enable PROCEED
+    const btn = document.getElementById('em-proceed-btn');
+    if(btn) { btn.disabled=false; btn.style.background='#004080'; btn.style.cursor='pointer'; }
+};
+
+window.proceedEntryMethod = function() {
+    const method = window._selectedEntryMethod;
+    if (!method) return;
+    window.chooseEntryMethod(method);
+};
+
+// selectMethod — highlight chosen button on section 2
+window.selectMethod = function(method) {
+    window._entryMethod = method;
+    const qrBtn  = document.getElementById('method-qr-btn');
+    const manBtn = document.getElementById('method-manual-btn');
+    const hint   = document.getElementById('method-hint');
+    const nextBtn = document.getElementById('method-next-btn');
+
+    if (qrBtn)  { qrBtn.style.background  = method==='qr'     ? 'linear-gradient(135deg,#002952,#004080)' : '#f0f4f8';
+                  qrBtn.style.borderColor  = method==='qr'     ? '#ffc107' : '#dde3ee'; }
+    if (manBtn) { manBtn.style.background = method==='manual'  ? '#e8f1fb' : '#f0f4f8';
+                  manBtn.style.borderColor = method==='manual' ? '#004080' : '#dde3ee'; }
+    // Flip icon colors
+    if (qrBtn)  qrBtn.querySelectorAll('svg').forEach(function(s){ s.setAttribute('stroke', method==='qr'?'#ffc107':'#004080'); });
+    if (manBtn) manBtn.querySelectorAll('div[style*="Oswald"]').forEach(function(d){ d.style.color=method==='manual'?'#004080':'#004080'; });
+
+    if (hint) hint.textContent = method==='qr' ? 'Scan QR Code selected — tap NEXT to continue' : 'Manual Entry selected — tap NEXT to continue';
+    if (nextBtn) { nextBtn.disabled=false; nextBtn.style.opacity='1'; nextBtn.style.cursor='pointer'; }
+};
+
+// proceedFromMethodSection — moves from section 2 to 3 and shows right block
+window.proceedFromMethodSection = function() {
+    var method = window._entryMethod;
+    if (!method) { showNotification('Please choose a method first.', 'error'); return; }
+    // Move to section 3
+    nextSection();
+    // Show correct block in section 3
+    var qrBlock     = document.getElementById('qrScanBlock');
+    var manualBlock = document.getElementById('manualEntryBlock');
+    var nav         = document.getElementById('sectionBNav');
+    if (method === 'qr') {
+        if (qrBlock)     qrBlock.style.display    = 'block';
+        if (manualBlock) manualBlock.style.display = 'none';
+        if (nav)         nav.style.display         = 'flex';
+        setTimeout(function(){ window.startSchoolQRScan && window.startSchoolQRScan(); }, 400);
+        showNotification('Point camera at the school QR code', 'info');
+    } else {
+        if (qrBlock)     qrBlock.style.display    = 'none';
+        if (manualBlock) manualBlock.style.display = 'block';
+        if (nav)         nav.style.display         = 'flex';
+    }
+};
+
+window.chooseEntryMethod = function(method) {
+    window._entryMethod = method;
+    const qrBlock     = document.getElementById('qrScanBlock');
+    const manualBlock = document.getElementById('manualEntryBlock');
+    const nav         = document.getElementById('sectionBNav');
+    if (method === 'qr') {
+        if (qrBlock)     qrBlock.style.display     = 'block';
+        if (manualBlock) manualBlock.style.display  = 'none';
+        if (nav)         nav.style.display          = 'flex';
+        setTimeout(function(){ window.startSchoolQRScan && window.startSchoolQRScan(); }, 400);
+        showNotification('Point camera at the school QR code', 'info');
+    } else {
+        if (qrBlock)     qrBlock.style.display     = 'none';
+        if (manualBlock) manualBlock.style.display  = 'block';
+        if (nav)         nav.style.display          = 'flex';
+        showNotification('Select District, Chiefdom, PHU and School from the dropdowns', 'info');
+    }
+};
+
+window.startSchoolQRScan = function() {
+    const wrap = document.getElementById('schoolQRScannerWrap');
+    if (!wrap) return;
+    wrap.style.display = 'block';
+
+    if (typeof Html5Qrcode !== 'undefined') {
+        _qrScanner = new Html5Qrcode('schoolQRReader');
+        _qrScanner.start(
+            { facingMode: 'environment' },
+            { fps: 10, qrbox: { width: 250, height: 250 } },
+            (decoded) => {
+                window.stopSchoolQRScan();
+                window.processSchoolQR(decoded);
+            },
+            () => {}
+        ).catch(e => {
+            showNotification('Camera error: ' + e.message, 'error');
+            wrap.style.display = 'none';
+        });
+    } else {
+        showNotification('QR scanner not available. Add html5-qrcode library.', 'error');
+        wrap.style.display = 'none';
+    }
+};
+
+window.stopSchoolQRScan = function() {
+    if (_qrScanner) { _qrScanner.stop().catch(() => {}); _qrScanner = null; }
+    const wrap = document.getElementById('schoolQRScannerWrap');
+    if (wrap) wrap.style.display = 'none';
+};
+
+window.processSchoolQR = function(raw) {
+    let data;
+    try { data = JSON.parse(raw); } catch {
+        showNotification('⛔ Invalid QR — not an ICF-SL school QR code', 'error'); return;
+    }
+
+    // Check all required fields
+    const missing = [];
+    if (!data.school_name && !data.schoolName)   missing.push('School Name');
+    if (!data.district)                           missing.push('District');
+    if (!data.chiefdom)                           missing.push('Chiefdom');
+    if (!data.facility && !data.phu)              missing.push('Health Facility');
+    if (!data.community)                          missing.push('Community');
+
+    if (missing.length > 0) {
+        showNotification('⛔ QR missing required fields: ' + missing.join(', '), 'error');
+        return;
+    }
+
+    const school     = data.school_name   || data.schoolName   || '';
+    const district   = data.district      || '';
+    const chiefdom   = data.chiefdom      || '';
+    const facility   = data.facility      || data.phu          || '';
+    const community  = data.community     || '';
+    const enrollment = data.enrollment    || data.school_enrollment || '';
+    const emis       = data.emis_number   || data.emis          || '';
+    const status     = data.school_status || data.status        || '';
+
+    // Check if school is in CSV (existing) or new
+    const inCSV = _isSchoolInCSV(district, chiefdom, facility, community, school);
+
+    // Set cascading dropdowns
+    _setSelectReadOnly('district',    district);
+    _setSelectReadOnly('chiefdom',    chiefdom);
+    _setSelectReadOnly('facility',    facility);
+    _setSelectReadOnly('community',   community);
+    _setSelectReadOnly('school_name', school);
+
+    const enrGrp2  = document.getElementById('enrollment-group');
+    const emisGrp2 = document.getElementById('emis-group');
+    const stGrp2   = document.getElementById('status-group');
+    const enrEl    = document.getElementById('school_enrollment');
+    const emisEl   = document.getElementById('emis_number');
+    const stEl     = document.getElementById('school_status');
+    if (enrollment && enrEl)  { enrEl.value  = enrollment; if(enrGrp2)  enrGrp2.style.display  = 'block'; }
+    if (emis       && emisEl) { emisEl.value = emis;       if(emisGrp2) emisGrp2.style.display = 'block'; }
+    if (status     && stEl)   { stEl.value   = status;     if(stGrp2)   stGrp2.style.display   = 'block'; }
+
+    // Tag submission as new school if not in CSV
+    const newSchoolEl = document.getElementById('is_new_school');
+    if (newSchoolEl) newSchoolEl.value = inCSV ? 'No' : 'Yes';
+
+    _qrFilled = true;
+
+    // Show cascading fields (read-only), common fields, and nav
+    const manualBlock = document.getElementById('manualEntryBlock');
+    if (manualBlock) manualBlock.style.display = 'block';
+    const nav = document.getElementById('sectionBNav');
+    if (nav) nav.style.display = 'flex';
+
+    const banner = document.getElementById('qrFilledBanner');
+    const nameEl = document.getElementById('qrFilledSchoolName');
+    if (banner) { banner.style.display = 'flex';
+        if (!inCSV) {
+            banner.style.background = '#fff8e1';
+            banner.style.borderColor = '#ffc107';
+        }
+    }
+    if (nameEl) {
+        nameEl.textContent = school + (district ? ' · ' + district : '') +
+            (!inCSV ? ' 🆕 NEW SCHOOL' : '');
+        if (!inCSV) nameEl.style.color = '#e6a800';
+    }
+
+    const btn = document.getElementById('qrScanBtn');
+    if (btn) { btn.textContent = '✓ QR FILLED'; btn.style.background = '#28a745'; btn.style.color = '#fff'; }
+
+    const msg = inCSV
+        ? '✅ School auto-filled from QR'
+        : '✅ NEW SCHOOL scanned — not in target list, will be tracked separately';
+    showNotification(msg, 'success');
+    setTimeout(() => { if (window.nextSection) window.nextSection(); }, 1800);
+};
+
+// Check if school exists in the CSV cascading data
+function _isSchoolInCSV(district, chiefdom, facility, community, school) {
+    try {
+        const d = window.ALL_LOCATION_DATA;
+        if (!d) return false;
+        const dKey = Object.keys(d).find(k => k.toLowerCase() === district.toLowerCase());
+        if (!dKey) return false;
+        const cKey = Object.keys(d[dKey]).find(k => k.toLowerCase() === chiefdom.toLowerCase());
+        if (!cKey) return false;
+        const pKey = Object.keys(d[dKey][cKey]).find(k => k.toLowerCase() === facility.toLowerCase());
+        if (!pKey) return false;
+        const comKey = Object.keys(d[dKey][cKey][pKey]).find(k => k.toLowerCase() === community.toLowerCase());
+        if (!comKey) return false;
+        const schools = d[dKey][cKey][pKey][comKey];
+        return Array.isArray(schools) && schools.some(s => s.toLowerCase() === school.toLowerCase());
+    } catch { return false; }
+}
+
+function _setSelectReadOnly(id, value) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    // Try to find option, or add it
+    let found = false;
+    for (const opt of el.options) {
+        if (opt.value === value || opt.text === value) {
+            el.value = opt.value; found = true; break;
+        }
+    }
+    if (!found && value) {
+        const opt = new Option(value, value, true, true);
+        opt.setAttribute('data-qr-added', '1');
+        el.appendChild(opt);
+        el.value = value;
+    }
+    el.disabled = true;
+    el.style.background = '#e8f5ee';
+    el.style.borderColor = '#28a745';
+    el.style.cursor = 'not-allowed';
+    // Trigger cascade events
+    el.dispatchEvent(new Event('change'));
+}
+
+window.clearQRFill = function() {
+    _qrFilled = false;
+    // Re-enable all location dropdowns
+    ['district','chiefdom','facility','community','school_name'].forEach(id => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.disabled = false;
+        el.style.background = '';
+        el.style.borderColor = '';
+        el.style.cursor = '';
+        // Remove QR-added options
+        [...el.options].filter(o => o.getAttribute('data-qr-added')).forEach(o => o.remove());
+    });
+    // Also clear EMIS, enrollment, status
+    const emisEl = document.getElementById('emis_number');
+    if (emisEl) { emisEl.value = ''; emisEl.readOnly = false; }
+    const enrEl = document.getElementById('school_enrollment');
+    if (enrEl) { enrEl.value = ''; enrEl.readOnly = false; }
+    const stEl = document.getElementById('school_status');
+    if (stEl) { stEl.value = ''; stEl.style.background = ''; stEl.style.borderColor = ''; stEl.style.pointerEvents = ''; }
+    const banner = document.getElementById('qrFilledBanner');
+    if (banner) banner.style.display = 'none';
+    const btn = document.getElementById('qrScanBtn');
+    if (btn) { btn.textContent = '📷 SCAN QR'; btn.style.background = ''; btn.style.color = ''; }
+    // Hide common fields and nav — back to scan mode
+    const nav = document.getElementById('sectionBNav');
+    if (nav) nav.style.display = 'none';
+};
+
+// ════════════════════════════════════════════════════
+// HEAD TEACHER PHONE — 9-digit, unique validation
+// ════════════════════════════════════════════════════
+(function() {
+    function getUsedPhones() {
+        // Collect from submitted schools + pending + drafts
+        const all = [
+            ...(window.state?.submittedSchools || []).map(s => s.data || s),
+            ...(window.state?.pendingSubmissions || []),
+            ...(window.state?.drafts || []).map(d => d.data || d)
+        ];
+        return new Set(all.map(r => (r.head_teacher_phone || '').trim()).filter(Boolean));
+    }
+
+    function validateHTPhone() {
+        const inp   = document.getElementById('head_teacher_phone');
+        const errEl = document.getElementById('error_head_teacher_phone');
+        if (!inp || !errEl) return true;
+
+        const val = inp.value.trim();
+
+        // Empty check
+        if (!val) {
+            errEl.textContent = 'Head teacher phone is required';
+            inp.classList.add('error');
+            return false;
+        }
+        // 9 digits
+        if (!/^[0-9]{9}$/.test(val)) {
+            errEl.textContent = 'Must be exactly 9 digits';
+            inp.classList.add('error');
+            return false;
+        }
+        inp.classList.remove('error');
+        errEl.textContent = '';
+        return true;
+    }
+
+    // Attach validator on blur and input
+    document.addEventListener('DOMContentLoaded', () => {
+        const inp = document.getElementById('head_teacher_phone');
+        if (inp) {
+            inp.addEventListener('blur',  validateHTPhone);
+            inp.addEventListener('input', () => {
+                if (inp.value.length === 9) validateHTPhone();
+            });
+        }
+    });
+
+    // Expose for doSubmit to call
+    window.validateHeadTeacherPhone = validateHTPhone;
+
+    // Online duplicate check during submission
+    window.checkHeadTeacherPhoneOnline = async function(phone) {
+        if (!phone || phone.length !== 9) return { duplicate: false };
+        try {
+            const url = (window.CONFIG?.SCRIPT_URL || '') +
+                '?action=checkDuplicate&field=head_teacher_phone&value=' + encodeURIComponent(phone);
+            const res = await Promise.race([
+                fetch(url),
+                new Promise((_,r) => setTimeout(() => r(new Error('timeout')), 4000))
+            ]);
+            if (res.ok) {
+                const d = await res.json();
+                return { duplicate: !!d.duplicate, school: d.school_name || '' };
+            }
+        } catch {}
+        return { duplicate: false }; // fail open
+    };
+})();
+</script>
+
+
+<!-- ENTRY METHOD CHOICE MODAL -->
+<div id="entryMethodModal" style="display:none;position:fixed;inset:0;background:rgba(0,20,40,.7);z-index:5000;align-items:center;justify-content:center;padding:20px;">
+    <div style="background:#fff;border-radius:18px;padding:26px 22px;max-width:340px;width:100%;box-shadow:0 20px 50px rgba(0,0,0,.4);border-top:5px solid #ffc107;">
+        <!-- Title -->
+        <div style="font-family:'Oswald',sans-serif;font-size:16px;font-weight:700;color:#004080;letter-spacing:.5px;margin-bottom:6px;">HOW WILL YOU IDENTIFY THE SCHOOL?</div>
+        <div style="font-size:11px;color:#607080;margin-bottom:18px;">Select one option then tap PROCEED</div>
+
+        <!-- Radio: QR -->
+        <label id="em-lbl-qr" onclick="window.selectEntryMethod('qr')"
+            style="display:flex;align-items:center;gap:12px;border:2px solid #dde5ee;border-radius:12px;padding:14px;margin-bottom:10px;cursor:pointer;transition:all .2s;">
+            <div style="width:20px;height:20px;border-radius:50%;border:2px solid #004080;display:flex;align-items:center;justify-content:center;flex-shrink:0;" id="em-radio-qr">
+                <div id="em-dot-qr" style="width:10px;height:10px;border-radius:50%;background:#004080;display:none;"></div>
+            </div>
+            <div style="flex:1;">
+                <div style="font-family:'Oswald',sans-serif;font-size:13px;font-weight:700;color:#004080;">📷 SCAN QR CODE</div>
+                <div style="font-size:10px;color:#607080;margin-top:2px;">Camera scans school QR and auto-fills all fields</div>
+            </div>
+        </label>
+
+        <!-- Radio: Manual -->
+        <label id="em-lbl-manual" onclick="window.selectEntryMethod('manual')"
+            style="display:flex;align-items:center;gap:12px;border:2px solid #dde5ee;border-radius:12px;padding:14px;cursor:pointer;transition:all .2s;">
+            <div style="width:20px;height:20px;border-radius:50%;border:2px solid #004080;display:flex;align-items:center;justify-content:center;flex-shrink:0;" id="em-radio-manual">
+                <div id="em-dot-manual" style="width:10px;height:10px;border-radius:50%;background:#004080;display:none;"></div>
+            </div>
+            <div style="flex:1;">
+                <div style="font-family:'Oswald',sans-serif;font-size:13px;font-weight:700;color:#004080;">✍ MANUAL ENTRY</div>
+                <div style="font-size:10px;color:#607080;margin-top:2px;">Select District → Chiefdom → PHU → School</div>
+            </div>
+        </label>
+
+        <!-- PROCEED button — disabled until selection -->
+        <button id="em-proceed-btn" onclick="window.proceedEntryMethod()" disabled
+            style="width:100%;margin-top:16px;padding:13px;background:#ccc;color:#fff;border:none;border-radius:10px;font-family:'Oswald',sans-serif;font-size:14px;font-weight:700;letter-spacing:.5px;cursor:not-allowed;transition:all .2s;">
+            PROCEED →
+        </button>
+        <button onclick="document.getElementById('entryMethodModal').style.display='none'"
+            style="width:100%;background:none;border:none;color:#aaa;font-family:'Oswald',sans-serif;font-size:11px;cursor:pointer;margin-top:8px;padding:4px;">
+            CANCEL
+        </button>
+    </div>
+</div>
+
 </body>
 </html>
